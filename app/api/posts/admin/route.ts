@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyToken } from '@/lib/local-auth.server';
-import { getAllPostsAdmin } from '@/lib/local-store.server';
+import { getAllPostsAdmin, syncStoreFromKV } from '@/lib/local-store.server';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -13,6 +13,7 @@ export async function GET(req: NextRequest) {
     if (!user?.isAdmin) return NextResponse.json({ error: 'Ikke tilgang.' }, { status: 403 });
 
     try {
+        await syncStoreFromKV();
         const posts = getAllPostsAdmin();
         return NextResponse.json(posts, {
             headers: {

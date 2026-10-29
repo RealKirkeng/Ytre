@@ -10,6 +10,7 @@ import bcrypt from 'bcryptjs';
 import { SignJWT, jwtVerify } from 'jose';
 import { cookies } from 'next/headers';
 import { getDataDir } from './data-dir.server';
+import { isRemoteKVConfigured, remoteKVGet, remoteKVSet } from './remote-kv.server';
 
 function getUsersFile() {
     return path.join(getDataDir(), 'users.json');
@@ -70,6 +71,27 @@ function readUsers(): LocalUser[] {
     }
 }
 
+export async function syncUsersFromKV(): Promise<void> {
+    if (!isRemoteKVConfigured()) return;
+    try {
+        const kvUsers = await remoteKVGet<LocalUser[]>('users');
+        if (kvUsers && Array.isArray(kvUsers) && kvUsers.length > 0) {
+            ensureDataDir();
+            const file = getUsersFile();
+            fs.writeFileSync(file, JSON.stringify(kvUsers, null, 2), 'utf-8');
+            usersCache = kvUsers;
+            usersMtime = fs.statSync(file).mtimeMs;
+        } else if (kvUsers === null || (Array.isArray(kvUsers) && kvUsers.length === 0)) {
+            const local = readUsers();
+            if (local.length > 0) {
+                await remoteKVSet('users', local);
+            }
+        }
+    } catch (err) {
+        console.warn('[local-auth] Failed to sync users from KV:', err);
+    }
+}
+
 function writeUsers(users: LocalUser[]): void {
     ensureDataDir();
     const file = getUsersFile();
@@ -80,10 +102,14 @@ function writeUsers(users: LocalUser[]): void {
     } catch (err) {
         console.warn(`[local-auth] Warning: Could not write users to ${file}:`, err);
     }
+    if (isRemoteKVConfigured()) {
+        remoteKVSet('users', users).catch(err => console.warn('[local-auth] Error setting users in KV:', err));
+    }
 }
 
 // ── Seed test account ─────────────────────────────────────────────────────────
 export async function seedTestUser(): Promise<void> {
+    await syncUsersFromKV();
     const users = readUsers();
     if (users.some(u => u.email === 'test@test.no')) return;
     const passwordHash = await bcrypt.hash('test', 10);

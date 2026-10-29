@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyToken } from '@/lib/local-auth.server';
-import { getPostById } from '@/lib/local-store.server';
+import { getPostById, syncStoreFromKV } from '@/lib/local-store.server';
 
 export const runtime = 'nodejs';
 
@@ -8,6 +8,7 @@ export async function GET(
     req: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ) {
+    await syncStoreFromKV();
     const { id } = await params;
     const token = req.cookies.get('auth-token')?.value;
     const user = token ? await verifyToken(token) : null;

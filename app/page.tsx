@@ -1,4 +1,4 @@
-import { getEnrichedPosts, getSettings } from '@/lib/local-store.server';
+import { getEnrichedPosts, getSettings, syncStoreFromKV } from '@/lib/local-store.server';
 import { MasonryGrid } from '@/components/MasonryGrid';
 import type { Post } from '@/components/ArticleCard';
 import Link from 'next/link';
@@ -89,6 +89,7 @@ async function getLocalPosts(
 }
 
 export default async function HomePage({ searchParams }: HomePageProps) {
+    await syncStoreFromKV();
     const sp = await searchParams;
     const category = sp.category ?? '';
     const region = sp.region ?? '';

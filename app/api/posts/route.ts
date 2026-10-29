@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyToken, getUserById } from '@/lib/local-auth.server';
-import { getPosts, createPost, getPostsByAuthor, updatePost, deletePost, getPostById, getEnrichedPosts } from '@/lib/local-store.server';
+import { getPosts, createPost, getPostsByAuthor, updatePost, deletePost, getPostById, getEnrichedPosts, syncStoreFromKV } from '@/lib/local-store.server';
 import { processBase64Image, processContentImages } from '@/lib/image-upload.server';
 
 export const runtime = 'nodejs';
@@ -16,6 +16,7 @@ function generateSlug(title: string): string {
 
 // GET — list posts (published) or author's own posts
 export async function GET(req: NextRequest) {
+    await syncStoreFromKV();
     const category = req.nextUrl.searchParams.get('category') ?? undefined;
     const region = req.nextUrl.searchParams.get('region') ?? undefined;
     const authorId = req.nextUrl.searchParams.get('authorId') ?? undefined;
@@ -43,6 +44,7 @@ export async function GET(req: NextRequest) {
 // POST — submit article (saved as 'pending', awaiting admin approval)
 export async function POST(req: NextRequest) {
     try {
+        await syncStoreFromKV();
         const token = req.cookies.get('auth-token')?.value;
         const user = token ? await verifyToken(token) : null;
         if (!user) return NextResponse.json({ error: 'Du må logge inn for å sende inn innlegg.' }, { status: 401 });
@@ -110,6 +112,7 @@ export async function POST(req: NextRequest) {
 
 // DELETE — admin only
 export async function DELETE(req: NextRequest) {
+    await syncStoreFromKV();
     const token = req.cookies.get('auth-token')?.value;
     const user = token ? await verifyToken(token) : null;
     if (!user?.isAdmin) return NextResponse.json({ error: 'Ikke tilgang.' }, { status: 403 });
@@ -128,6 +131,7 @@ export async function DELETE(req: NextRequest) {
 
 // PATCH — admin can update anything; author can edit their own pending/published post
 export async function PATCH(req: NextRequest) {
+    await syncStoreFromKV();
     const token = req.cookies.get('auth-token')?.value;
     const user = token ? await verifyToken(token) : null;
     if (!user) return NextResponse.json({ error: 'Ikke logget inn.' }, { status: 401 });

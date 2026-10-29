@@ -1,4 +1,5 @@
-import { getPostBySlug, getEnrichedPostBySlug } from '@/lib/local-store.server';
+import { getPostBySlug, getEnrichedPostBySlug, syncStoreFromKV } from '@/lib/local-store.server';
+import { getSession } from '@/lib/local-auth.server';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import Link from 'next/link';
@@ -91,7 +92,9 @@ interface PageProps { params: Promise<{ slug: string }> }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
     const { slug } = await params;
-    const local = getPostBySlug(slug);
+    await syncStoreFromKV();
+    const session = await getSession();
+    const local = getPostBySlug(slug, Boolean(session?.isAdmin));
     const post = local || MOCK_MAP[slug];
     if (!post) return { title: 'Artikkel ikke funnet — Ytre' };
     return { title: `${post.title} — Ytre`, description: post.content.slice(0, 150) };
@@ -123,9 +126,18 @@ function renderBody(content: string) {
 
 export default async function PostPage({ params }: PageProps) {
     const { slug } = await params;
+    await syncStoreFromKV();
+    const session = await getSession();
 
-    // Check local storage first, then fall back to mock data
-    const enrichedLocal = getEnrichedPostBySlug(slug);
+    // Check local storage first (including unpublished for admin or author)
+    const enrichedLocal = getEnrichedPostBySlug(slug, true);
+    if (enrichedLocal && enrichedLocal.status !== 'published') {
+        const canView = session?.isAdmin || session?.id === enrichedLocal.authorId;
+        if (!canView) {
+            notFound();
+        }
+    }
+
     const mockPost = MOCK_MAP[slug];
     const post = enrichedLocal || (mockPost ? {
         ...mockPost,
@@ -148,6 +160,23 @@ export default async function PostPage({ params }: PageProps) {
                 <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
                 Tilbake til forsiden
             </Link>
+
+            {post.status === 'pending' && (
+                <div className="mb-6 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-900 dark:text-amber-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
+                    <div className="flex items-center gap-2.5 text-sm font-medium">
+                        <span className="text-xl">⏳</span>
+                        <div>
+                            <span className="font-semibold block sm:inline mr-1">Venter på godkjenning:</span>
+                            <span>Dette innlegget er under redaksjonell vurdering og er kun synlig for deg og redaksjonen.</span>
+                        </div>
+                    </div>
+                    {session?.isAdmin && (
+                        <Link href="/admin" className="inline-flex items-center justify-center text-xs font-semibold px-3 py-1.5 rounded-xl bg-amber-500 text-white hover:bg-amber-600 transition-all shadow-sm shrink-0">
+                            Gå til Admin for å godkjenne →
+                        </Link>
+                    )}
+                </div>
+            )}
 
             {/* 5-second view tracker — invisible, fires after reading */}
             <ViewTracker postId={post.id} />

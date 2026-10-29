@@ -7,6 +7,7 @@ import fs from 'fs';
 import path from 'path';
 import { getAllUsers } from './local-auth.server';
 import { getDataDir } from './data-dir.server';
+import { isRemoteKVConfigured, remoteKVGet, remoteKVSet } from './remote-kv.server';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 export type GeoLevel = 'global' | 'national' | 'fylke' | 'kommune';
@@ -140,11 +141,40 @@ function getCachedPosts(): LocalPost[] {
     return postsCache;
 }
 
+export async function syncPostsFromKV(): Promise<void> {
+    if (!isRemoteKVConfigured()) return;
+    try {
+        const kvPosts = await remoteKVGet<LocalPost[]>('posts');
+        if (kvPosts && Array.isArray(kvPosts) && kvPosts.length > 0) {
+            const file = getPostsFile();
+            writeJSON(file, kvPosts);
+            postsCache = kvPosts;
+            postsMtime = getFileMtime(file);
+        } else if (kvPosts === null || (Array.isArray(kvPosts) && kvPosts.length === 0)) {
+            // If KV is completely empty, populate it with current local posts
+            const local = getCachedPosts();
+            if (local.length > 0) {
+                await remoteKVSet('posts', local);
+            }
+        }
+    } catch (err) {
+        console.warn('[local-store] Failed to sync posts from KV:', err);
+    }
+}
+
+export async function syncStoreFromKV(): Promise<void> {
+    if (!isRemoteKVConfigured()) return;
+    await syncPostsFromKV();
+}
+
 function setCachedPosts(posts: LocalPost[]): void {
     const file = getPostsFile();
     writeJSON(file, posts);
     postsMtime = getFileMtime(file);
     postsCache = posts;
+    if (isRemoteKVConfigured()) {
+        remoteKVSet('posts', posts).catch(err => console.warn('[local-store] Error setting posts in KV:', err));
+    }
 }
 
 function getCachedComments(): LocalComment[] {
@@ -278,12 +308,12 @@ export function getEnrichedPosts(filter?: {
     return result.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 }
 
-export function getPostBySlug(slug: string): LocalPost | null {
-    return getCachedPosts().find(p => p.slug === slug && p.status === 'published') ?? null;
+export function getPostBySlug(slug: string, includeUnpublished = false): LocalPost | null {
+    return getCachedPosts().find(p => p.slug === slug && (includeUnpublished || p.status === 'published')) ?? null;
 }
 
-export function getEnrichedPostBySlug(slug: string): EnrichedPost | null {
-    const post = getPostBySlug(slug);
+export function getEnrichedPostBySlug(slug: string, includeUnpublished = false): EnrichedPost | null {
+    const post = getPostBySlug(slug, includeUnpublished);
     if (!post) return null;
     const comments = getCachedComments();
     const users = getAllUsers();
