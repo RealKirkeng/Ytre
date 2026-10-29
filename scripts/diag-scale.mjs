@@ -2,7 +2,7 @@
 import { readFileSync } from 'fs';
 import { geoMercator, geoPath } from 'd3-geo';
 
-const data = JSON.parse(readFileSync('public/norway-fylker.geojson', 'utf8'));
+const data = JSON.parse(readFileSync('scripts/data/norway-fylker.geojson', 'utf8'));
 const W = 400, H = 850;
 
 data.features.slice(0, 1).forEach((f, i) => {

@@ -1,44 +1,28 @@
-import { createClient } from '@/lib/supabase/server';
+import { getEnrichedPosts } from '@/lib/local-store.server';
 import { MasonryGrid } from '@/components/MasonryGrid';
 import type { Post } from '@/components/ArticleCard';
-import { CATEGORY_LABEL } from '@/components/ArticleCard';
+import { CATEGORY_LABEL, CATEGORY_ICON, SLUG_TO_DB_CATEGORY } from '@/lib/constants';
 import Link from 'next/link';
 import type { Metadata } from 'next';
-
-// Map URL slug → DB category value
-const SLUG_TO_DB: Record<string, string> = {
-    'skole': 'school',
-    'politikk': 'politics',
-    'psykisk-helse': 'mental_health',
-    'samfunn': 'society',
-};
 
 interface Props { params: Promise<{ slug: string }> }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const { slug } = await params;
-    const dbCat = SLUG_TO_DB[slug];
+    const dbCat = SLUG_TO_DB_CATEGORY[slug];
     const label = CATEGORY_LABEL[dbCat] || slug;
-    return { title: `${label} — Paragraf100` };
+    return { title: `${label} — Ytre` };
 }
 
 async function getPostsByCategory(dbCategory: string): Promise<Post[]> {
-    const supabase = await createClient();
-    const { data } = await (supabase
-        .from('posts')
-        .select('id, title, slug, content, category, created_at, flag_count, view_count, is_featured, image_url, profiles(username), comments(count)')
-        .eq('status', 'published')
-        .eq('category', dbCategory)
-        .order('created_at', { ascending: false })
-        .limit(30) as any);
-
-    if (!data || !data.length) return MOCK_POSTS.filter((p) => p.category === dbCategory);
-    return data.map((p: any) => ({ ...p, comment_count: p.comments?.[0]?.count ?? 0, profiles: Array.isArray(p.profiles) ? p.profiles[0] : p.profiles }));
+    const local = getEnrichedPosts({ category: dbCategory });
+    const mock = MOCK_POSTS.filter((p) => p.category === dbCategory);
+    return [...local, ...mock];
 }
 
 export default async function CategoryPage({ params }: Props) {
     const { slug } = await params;
-    const dbCat = SLUG_TO_DB[slug];
+    const dbCat = SLUG_TO_DB_CATEGORY[slug];
 
     if (!dbCat) {
         return (
@@ -53,22 +37,19 @@ export default async function CategoryPage({ params }: Props) {
     }
 
     const posts = await getPostsByCategory(dbCat);
-    const label = CATEGORY_LABEL[dbCat];
-
-    const categoryIcon: Record<string, string> = {
-        school: '📚', politics: '🗳️', mental_health: '🧠', society: '🌍',
-    };
+    const label = CATEGORY_LABEL[dbCat] || dbCat;
+    const icon = CATEGORY_ICON[dbCat] || '📄';
 
     return (
         <div className="min-h-screen">
-            <section className="px-4 sm:px-6 lg:px-8 pt-10 pb-16 max-w-7xl mx-auto">
+            <section className="px-4 sm:px-6 lg:px-8 pt-20 sm:pt-24 pb-16 max-w-7xl mx-auto">
                 {/* Header */}
                 <div className="mb-10">
                     <Link href="/" className="inline-flex items-center gap-1.5 text-sm text-ink-300 hover:text-ink transition-colors mb-6">
                         ← Alle kategorier
                     </Link>
                     <div className="flex items-center gap-3">
-                        <span className="text-4xl">{categoryIcon[dbCat]}</span>
+                        <span className="text-4xl">{icon}</span>
                         <div>
                             <h1 className="font-display text-4xl font-bold text-ink">{label}</h1>
                             <p className="text-ink-300 text-sm mt-1">{posts.length} innlegg</p>

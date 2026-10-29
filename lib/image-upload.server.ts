@@ -35,3 +35,39 @@ export async function processBase64Image(imageUrl: string | undefined, prefix: s
     }
     return imageUrl;
 }
+
+/**
+ * Finds all inline :::image:{"src":"data:image/...",...}::: in content,
+ * writes base64 data to disk, and replaces src with /uploads/fileName.
+ */
+export async function processContentImages(content: string): Promise<string> {
+    if (!content || !content.includes(':::image:')) return content;
+    
+    const regex = /:::image:(\{[\s\S]*?\}):::/g;
+    let match: RegExpExecArray | null;
+    let result = content;
+    const matches: string[] = [];
+    
+    while ((match = regex.exec(content)) !== null) {
+        matches.push(match[1]);
+    }
+    
+    for (const jsonStr of matches) {
+        try {
+            const data = JSON.parse(jsonStr);
+            if (data.src && data.src.startsWith('data:image/')) {
+                const savedPath = await processBase64Image(data.src, 'inline');
+                if (savedPath) {
+                    data.src = savedPath;
+                    const oldShortcode = `:::image:${jsonStr}:::`;
+                    const newShortcode = `:::image:${JSON.stringify(data)}:::`;
+                    result = result.replace(oldShortcode, newShortcode);
+                }
+            }
+        } catch {
+            // ignore parse errors
+        }
+    }
+    
+    return result;
+}

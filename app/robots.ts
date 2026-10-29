@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
             allow: '/',
             disallow: ['/admin/', '/api/', '/profil/innstillinger/'],
         },
-        sitemap: 'https://paragraf100.no/sitemap.xml',
+        sitemap: 'https://ytre.no/sitemap.xml',
     };
 }

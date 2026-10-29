@@ -133,10 +133,14 @@
 @layer base {
   * {
     box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
   }
 
   html {
     scroll-behavior: smooth;
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100vw;
   }
 
   body {
@@ -146,6 +150,9 @@
     @apply font-sans antialiased;
     min-height: 100vh;
     overflow-x: hidden;
+    width: 100%;
+    max-width: 100vw;
+    touch-action: manipulation;
     transition: background-color 0.4s ease, color 0.4s ease;
   }
 
@@ -262,19 +269,29 @@
   }
 
   /* Reading typography */
+  .reading-body {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+  }
+
   .reading-body p {
     color: var(--text-muted);
-    @apply leading-[1.88] mb-5 text-[1.09rem];
+    @apply leading-[1.78] sm:leading-[1.88] mb-4 sm:mb-5 text-[1.02rem] sm:text-[1.09rem];
   }
 
   .reading-body h2 {
     color: var(--text-primary);
-    @apply font-display text-2xl font-bold mt-10 mb-4;
+    @apply font-display text-xl sm:text-2xl font-bold mt-7 sm:mt-10 mb-3 sm:mb-4 tracking-tight;
   }
 
   .reading-body h3 {
     color: var(--text-primary);
-    @apply font-display text-xl font-semibold mt-8 mb-3;
+    @apply font-display text-lg sm:text-xl font-semibold mt-6 sm:mt-8 mb-2 sm:mb-3 tracking-tight;
+  }
+
+  .reading-body blockquote {
+    @apply border-l-4 border-fjord/40 pl-4 sm:pl-6 italic text-ink-400 my-5 sm:my-6 text-sm sm:text-base;
   }
 
   /* Category badges */
@@ -421,3 +438,75 @@
   animation: particle-float linear infinite;
   pointer-events: none;
 }
+
+/* ── Mobile utilities ── */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Prevent auto-zoom on input focus in iOS Safari */
+@media (max-width: 640px) {
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="search"],
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}
+
+/* ── Live Writer Canvas ── */
+.writer-canvas {
+  outline: none;
+  font-size: 1.08rem;
+  line-height: 1.85;
+  color: #2D2825;
+  min-height: 440px;
+}
+.writer-canvas:empty:before {
+  content: attr(data-placeholder);
+  color: #BDB6AC;
+  pointer-events: none;
+  display: block;
+}
+.writer-canvas h2 {
+  font-family: var(--font-display, serif);
+  font-size: 1.55rem;
+  font-weight: 700;
+  color: #1A1612;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+.writer-canvas h3 {
+  font-family: var(--font-display, serif);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1A1612;
+  margin-top: 1.25rem;
+  margin-bottom: 0.35rem;
+}
+.writer-canvas blockquote {
+  border-left: 4px solid rgba(91, 137, 168, 0.45);
+  padding-left: 1rem;
+  font-style: italic;
+  color: #7A7269;
+  margin: 1.25rem 0;
+}
+.writer-canvas strong,
+.writer-canvas b {
+  font-weight: 700;
+  color: #1A1612;
+}
+.writer-canvas em,
+.writer-canvas i {
+  font-style: italic;
+}
+.writer-canvas p {
+  margin-bottom: 1.15rem;
+}
+

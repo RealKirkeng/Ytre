@@ -76,10 +76,10 @@ export function CommentSection({ postId }: { postId: string }) {
         if (filtered.length === 0) return null;
 
         return (
-            <div className={depth > 0 ? "ml-4 sm:ml-8 mt-3 pl-4 border-l-2 border-sand-dark/20" : "space-y-4"}>
+            <div className={depth > 0 ? "ml-2.5 sm:ml-8 mt-3 pl-2.5 sm:pl-4 border-l-2 border-sand-dark/20" : "space-y-3 sm:space-y-4"}>
                 {filtered.map(c => (
                     <div key={c.id} className="relative group">
-                        <div className="bg-white rounded-2xl border border-sand-dark/40 p-4 hover:border-fjord/20 transition-colors shadow-sm">
+                        <div className="bg-white rounded-xl sm:rounded-2xl border border-sand-dark/40 p-3.5 sm:p-4 hover:border-fjord/20 transition-colors shadow-sm">
                             <div className="flex items-center gap-2.5 mb-2">
                                 {c.authorAvatar ? (
                                     <img src={c.authorAvatar} alt="" className="w-7 h-7 rounded-full border border-sand-dark object-cover shrink-0" />
@@ -106,7 +106,7 @@ export function CommentSection({ postId }: { postId: string }) {
 
                             {replyTo === c.id && (
                                 <motion.form initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }}
-                                    onSubmit={(e) => handleSubmit(e, c.id)} className="mt-4 pt-4 border-t border-sand-dark/20">
+                                    onSubmit={(e) => handleSubmit(e, c.id)} className="mt-3 pt-3 border-t border-sand-dark/20">
                                     <div className="bg-sand/30 rounded-xl border border-sand-dark/30 overflow-hidden">
                                         <textarea autoFocus value={replyContent} onChange={e => setReplyContent(e.target.value)}
                                             placeholder="Skriv ditt svar…" rows={2}
@@ -141,7 +141,7 @@ export function CommentSection({ postId }: { postId: string }) {
                 <form onSubmit={handleSubmit} className="mb-8">
                     <div className="bg-white rounded-2xl border border-sand-dark/40 overflow-hidden focus-within:border-fjord/40 focus-within:ring-2 focus-within:ring-fjord/10 transition-all">
                         <textarea value={content} onChange={e => setContent(e.target.value)}
-                            placeholder={`Del dine tanker, ${user.name.split(' ')[0]}…`}
+                            placeholder={user?.name ? `Del dine tanker, ${user.name.split(' ')[0]}…` : 'Del dine tanker…'}
                             rows={3} className="w-full bg-transparent px-4 pt-4 pb-2 text-sm text-ink placeholder-ink-300 resize-none focus:outline-none" />
                         <div className="flex items-center justify-between px-4 pb-3">
                             <span className="text-xs text-ink-300">{content.length}/500</span>
@@ -161,15 +161,15 @@ export function CommentSection({ postId }: { postId: string }) {
                     </AnimatePresence>
                 </form>
             ) : (
-                <div className="bg-white rounded-2xl border border-sand-dark/40 p-6 mb-8 text-center">
+                <div className="bg-white rounded-2xl border border-sand-dark/40 p-5 sm:p-6 mb-8 text-center">
                     <User className="w-7 h-7 text-fjord mx-auto mb-3" />
                     <p className="text-sm font-semibold text-ink mb-1">Logg inn for å kommentere</p>
                     <p className="text-xs text-ink-300 mb-4">Alle kan lese — for å delta trenger du en konto.</p>
-                    <div className="flex items-center justify-center gap-3">
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-2.5 sm:gap-3">
                         <Link href="/auth/login"
-                            className="px-5 py-2.5 rounded-xl border border-sand-dark/60 text-sm font-medium text-ink-400 hover:bg-sand/60 transition-colors">Logg inn</Link>
+                            className="w-full sm:w-auto px-5 py-2.5 rounded-xl border border-sand-dark/60 text-sm font-medium text-ink-400 hover:bg-sand/60 transition-colors">Logg inn</Link>
                         <Link href="/auth/signup"
-                            className="px-5 py-2.5 rounded-xl text-white text-sm font-semibold hover:brightness-110"
+                            className="w-full sm:w-auto px-5 py-2.5 rounded-xl text-white text-sm font-semibold hover:brightness-110"
                             style={{ background: 'linear-gradient(135deg,#5B89A8,#A87B8E)' }}>Registrer gratis</Link>
                     </div>
                 </div>

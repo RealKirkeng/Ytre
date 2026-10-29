@@ -1,24 +1,84 @@
 [
   {
-    "id": "b7da6efb-2fa9-4a94-9c47-42e3610c0db0",
+    "id": "7a210522-ab19-4c72-b013-a807232d79d9",
     "view_count": 1,
     "flag_count": 0,
+    "is_featured": false,
+    "createdAt": "2026-10-29T18:47:07.986Z",
+    "reactions": {},
+    "slug": "versionstest-av-den-nye-skribentsiden-ypx5v",
+    "title": "Versionstest av den nye skribentsiden",
+    "subtitle": "Skribentens vertsøyskasse for en god og informasjonsrik artikkel",
+    "content": "## La oss starte med teksten\n\nDette er den første testen av *skribentenssverktøykasse*\n\n> \"Skribentensverktøykasse skal brukest for å gjør at innlegget utrykkes markant bedre og mer episk\"\n\nInsane test ngl\n\n:::image:{\"src\":\"/uploads/inline-b2e15f08-b274-4471-8dca-6f782c0b7b5a-1793299627954.png\",\"align\":\"full\",\"size\":\"large\",\"caption\":\"Testbilde av Nytt på Nytt logoen fra NRK for å teste hvordan dette ser ut\",\"alt\":\"Logo Nytt på Nytt\"}:::\n\nWow den er lastet inn hva med denne:\n\n:::image:{\"src\":\"/uploads/inline-3d510042-ef26-4320-a4f9-69bed96c94e0-1793299627963.png\",\"align\":\"left\",\"size\":\"small\",\"caption\":\"BFFA\",\"alt\":\"Logo ting\"}:::\n\nHva med å skrive vedsidenav bildet?? Vel det funka overaskene bra det også\n\nWow dette gikk også knall.\n\nOkey godkjent IG",
+    "category": "technology",
+    "image_url": "/uploads/post-c4a04af0-20b1-4674-9c8a-87eeb9d6a500-1793299627931.png",
+    "regions": [
+      {
+        "level": "fylke",
+        "id": "11",
+        "name": "Rogaland"
+      },
+      {
+        "level": "fylke",
+        "id": "42",
+        "name": "Agder"
+      },
+      {
+        "level": "fylke",
+        "id": "46",
+        "name": "Vestland"
+      },
+      {
+        "level": "fylke",
+        "id": "15",
+        "name": "Møre og Romsdal"
+      }
+    ],
+    "audience": [
+      "everyone",
+      "students"
+    ],
+    "angle": "⚖️ Nøytral analyse",
+    "readingLevel": "medium",
+    "imageCaption": "Bilde av idk",
+    "photographer": "AI Generert",
+    "organization": "Ytre Redaksjonen",
+    "position": "Testkonto",
+    "orgLevel": "media",
+    "coAuthors": [
+      "Per Gynt",
+      "Oda Langormsdatter"
+    ],
+    "allowLicensing": true,
+    "status": "published",
+    "authorId": "c2caf46f-900d-49a9-9ef4-065cad3e5b05",
+    "authorName": "Test Bruker",
+    "updatedAt": "2026-10-29T19:07:06.224Z"
+  },
+  {
+    "id": "b7da6efb-2fa9-4a94-9c47-42e3610c0db0",
+    "view_count": 2,
+    "flag_count": 1,
     "is_featured": false,
     "createdAt": "2026-03-05T12:49:30.140Z",
     "reactions": {},
     "slug": "k-ttlfc",
     "title": "K",
     "subtitle": "å nei",
-    "content": "kkæ\nkpijouhb\n\n\n> kæp'm '¨ænlj  jioub iøoækm\noljj\nlkmæ",
+    "content": "Dette er en introduksjon med **fet skrift** og *kursiv*.\n\n:::image:{\"src\":\"/uploads/avatar-0489e29c-4761-40c2-b795-48be81ae4837-1793294809216.jpg\",\"align\":\"center\",\"size\":\"medium\",\"caption\":\"Tog på vei mot kysten\",\"alt\":\"Togbilde\"}:::\n\n## Neste stopp\n\nHer fortsetter artikkelens tekst med god dybde.",
     "category": "school",
     "status": "published",
     "authorId": "c2caf46f-900d-49a9-9ef4-065cad3e5b05",
     "authorName": "Test Bruker",
-    "updatedAt": "2026-03-05T12:49:48.022Z"
+    "updatedAt": "2026-03-05T12:49:48.022Z",
+    "coAuthors": [
+      "Turi Nordmann",
+      "Karl Oscar"
+    ]
   },
   {
     "id": "65f4bfa9-141b-47f9-a37e-d1f893a11da2",
-    "view_count": 1,
+    "view_count": 2,
     "flag_count": 0,
     "is_featured": false,
     "createdAt": "2026-03-01T16:45:53.147Z",
@@ -35,7 +95,7 @@
   },
   {
     "id": "152b098d-d657-4849-987f-ecc6837df638",
-    "view_count": 0,
+    "view_count": 1,
     "flag_count": 0,
     "is_featured": false,
     "createdAt": "2026-03-01T16:44:46.637Z",
@@ -149,7 +209,6 @@
     "subtitle": "Draumen om eit dobbeltspor frå Sandnes i nord til Egersund i sør, la oss drøyma om dette tilsaman!",
     "content": "Eg har ein draum.\n\nNår eg sit langt heimefrå, oppslukt av studiar og bøker, så vandrar tankane ofte tilbake til det flate, opne landskapet. Til himmelen som er så høg, og lyset som treffer myra og havet.\n\nMen i draumen min er det noko meir.\n\nDen dagen eg vender nasen heim for godt, med vitnemålet i handa og framtida i bagasjen, ser eg for meg at noko har endra seg. Eg ser ikkje berre det gamle sporet som har tent oss så lenge. Eg ser to. To blanke striper av stål som strekkjer seg uavbrote gjennom landskapet vårt, side om side.\n\nDraumar er sterke saker. Dei kan flytta fjell, og dei kan byggja jernbane, om me berre torer å drøyma dei høgt nok.\n\nEg drøymer om ein Jærbane som pustar fritt. Ikkje rykk og napp, ikkje venting på kryssande tog, ikkje bussar som står i stampe når signalfeilen lyser. Men ein jamn, roleg flyt. Eit dobbelspor som ber oss framover, like stødig som pulsen i regionen vår.\n\nTenk deg kjensla av å vita at toget alltid går. At du slepp å planleggja livet ditt etter ein rutetabell med hol i. Tenk deg at me sluttar å stanga hovudet i veggen med \"buss for tog\", og heller let toget gli forbi på nabosporet medan meirarbeid blir gjort på det andre.\n\nDet handlar ikkje berre om tid og pengar. Det handlar om respekten for tida vår, for kvardagen og for kvarandre.\n\nEg ser for meg tog som stoppar der folk bur, og tog som susar forbi der det trengst fart. Ein dans av stål og hjul som bind saman by og bygd, frå Egersund i sør til Stavanger i nord.\n\nNår eg ein dag kjem heim, vil eg at me skal ha bygt noko som varer. Noko som seier at me trur på denne staden, at me satsar på oss sjølve.\n\nLa det bli meir enn ein draum. La oss leggja skinnene heilt fram.",
     "category": "infrastructure",
-    "image_url": "/uploads/post-8901dbd6-7593-4b0b-8f26-5db8cd880aea-1779290446074.png",
     "regions": [
       {
         "level": "fylke",
@@ -171,7 +230,7 @@
   },
   {
     "id": "6138a2ea-920e-40be-bd32-3f13f632993a",
-    "view_count": 5,
+    "view_count": 6,
     "flag_count": 0,
     "is_featured": false,
     "createdAt": "2026-02-25T17:14:41.940Z",
@@ -180,7 +239,6 @@
     "subtitle": "Kollektivtransport er det som gjør at Norge går rundt, eller?",
     "content": "Dette er en test artikkel om om kollektivtransport trengs eller ikke. Bare for å teste nettsiden.",
     "category": "infrastructure",
-    "image_url": "/uploads/post-6138a2ea-920e-40be-bd32-3f13f632993a-1779290446079.png",
     "regions": [
       {
         "level": "kommune",
@@ -239,7 +297,7 @@
   },
   {
     "id": "ee49081d-7830-4262-951f-a73fb882825f",
-    "view_count": 3,
+    "view_count": 4,
     "flag_count": 0,
     "is_featured": false,
     "createdAt": "2026-02-25T13:38:38.811Z",
@@ -289,7 +347,7 @@
   },
   {
     "id": "7a676588-0a07-42a8-80c9-081d94a0d354",
-    "view_count": 0,
+    "view_count": 1,
     "flag_count": 0,
     "is_featured": false,
     "createdAt": "2026-02-25T12:13:02.701Z",

@@ -3,30 +3,30 @@ import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 
 export const metadata: Metadata = {
-    title: 'Personvernerklæring | Paragraf100',
-    description: 'Slik håndterer og beskytter vi dine personopplysninger på Paragraf100. Les vår forpliktelse til ditt personvern.',
+    title: 'Personvernerklæring | Ytre',
+    description: 'Slik håndterer og beskytter vi dine personopplysninger på Ytre. Les vår forpliktelse til ditt personvern.',
 };
 
 export default function PrivacyPage() {
     return (
-        <main className="min-h-screen bg-sand px-4 py-8 sm:py-16">
-            <div className="max-w-3xl mx-auto bg-white rounded-3xl shadow-sm border border-sand-dark/20 p-8 sm:p-16">
-                <Link href="/" className="inline-flex items-center gap-2 text-sm text-ink-400 hover:text-ink transition-colors mb-12">
+        <main className="min-h-screen bg-sand px-4 pt-20 sm:pt-24 pb-16">
+            <div className="max-w-3xl mx-auto bg-white rounded-3xl shadow-sm border border-sand-dark/20 p-6 sm:p-16">
+                <Link href="/" className="inline-flex items-center gap-2 text-sm text-ink-400 hover:text-ink transition-colors mb-8 sm:mb-12">
                     <ArrowLeft className="w-4 h-4" /> Tilbake til forsiden
                 </Link>
 
-                <h1 className="font-display text-4xl sm:text-5xl font-bold text-ink mb-6">Personvernerklæring</h1>
-                <p className="text-lg text-ink-400 mb-12">Sist oppdatert: 1. mars 2026</p>
+                <h1 className="font-display text-3xl sm:text-5xl font-bold text-ink mb-4 sm:mb-6">Personvernerklæring</h1>
+                <p className="text-base sm:text-lg text-ink-400 mb-8 sm:mb-12">Sist oppdatert: 1. mars 2026</p>
 
                 <div className="prose prose-fjord max-w-none text-ink-500 space-y-8">
-                    <p className="lead text-xl text-ink-400 pb-6 border-b border-sand-dark/20">
-                        I Paragraf100 tar vi ditt personvern på største alvor. Denne erklæringen forklarer hvordan vi samler inn, bruker og beskytter dine personopplysninger i henhold til Personopplysningsloven og EUs personvernforordning (GDPR).
+                    <p className="lead text-lg sm:text-xl text-ink-400 pb-6 border-b border-sand-dark/20">
+                        I Ytre tar vi ditt personvern på største alvor. Denne erklæringen forklarer hvordan vi samler inn, bruker og beskytter dine personopplysninger i henhold til Personopplysningsloven og EUs personvernforordning (GDPR).
                     </p>
 
                     <section>
                         <h2 className="font-display text-2xl font-bold text-ink mb-4">1. Hvem er behandlingsansvarlig?</h2>
                         <p>
-                            Det er Paragraf100 (org. nr. [Fylles inn]), representert ved daglig leder, som er behandlingsansvarlig for de persondata som lagres i forbindelse med bruk av vår tjeneste.
+                            Det er Ytre (org. nr. [Fylles inn]), representert ved daglig leder, som er behandlingsansvarlig for de persondata som lagres i forbindelse med bruk av vår tjeneste.
                         </p>
                     </section>
 
@@ -56,7 +56,7 @@ export default function PrivacyPage() {
                     <section>
                         <h2 className="font-display text-2xl font-bold text-ink mb-4">4. Informasjonskapsler (Cookies)</h2>
                         <p>
-                            Vi bruker et minimalt antall informasjonskapsler. De brukes utelukkende for kritisk funksjonalitet (som å holde deg innlogget via en auth-token). Paragraf100 benytter ikke sporingspiksler eller retargeting-cookies fra Facebook/Google.
+                            Vi bruker et minimalt antall informasjonskapsler. De brukes utelukkende for kritisk funksjonalitet (som å holde deg innlogget via en auth-token). Ytre benytter ikke sporingspiksler eller retargeting-cookies fra Facebook/Google.
                         </p>
                     </section>
 
@@ -76,7 +76,7 @@ export default function PrivacyPage() {
                             <li><strong>Dataportabilitet:</strong> Be om å få overlevert dine data i maskinlesbart format.</li>
                         </ul>
                         <p className="mt-4">
-                            Ønsker du å benytte deg av disse rettighetene, kontakt oss på <code>personvern@paragraf100.no</code>. Du har også rett til å klage til Datatilsynet dersom du mener vi behandler dine opplysninger urettmessig.
+                            Ønsker du å benytte deg av disse rettighetene, kontakt oss på <code>personvern@ytre.no</code>. Du har også rett til å klage til Datatilsynet dersom du mener vi behandler dine opplysninger urettmessig.
                         </p>
                     </section>
 

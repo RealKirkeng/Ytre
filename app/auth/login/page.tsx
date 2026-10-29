@@ -35,15 +35,15 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="min-h-[80vh] flex items-center justify-center px-4 py-16">
+        <div className="min-h-[80vh] flex items-center justify-center px-4 pt-24 sm:pt-28 pb-16">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }} className="w-full max-w-md">
 
                 <div className="text-center mb-8">
                     <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-white text-xl font-bold mx-auto mb-4"
-                        style={{ background: 'linear-gradient(135deg,#5B89A8,#A87B8E)', boxShadow: '0 8px 24px rgba(91,137,168,0.25)' }}>§</div>
+                        style={{ background: 'linear-gradient(135deg,#5B89A8,#A87B8E)', boxShadow: '0 8px 24px rgba(91,137,168,0.25)' }}>Y</div>
                     <h1 className="font-display text-3xl font-bold text-ink mb-1">Logg inn</h1>
-                    <p className="text-ink-400 text-sm">Velkommen tilbake til Paragraf100</p>
+                    <p className="text-ink-400 text-sm">Velkommen tilbake til Ytre</p>
                 </div>
 
                 {/* Test account hint */}
@@ -51,7 +51,7 @@ export default function LoginPage() {
                     🔑 Testkonto: <strong>test@test.no</strong> / passord: <strong>test</strong>
                 </div>
 
-                <div className="bg-white rounded-3xl border border-sand-dark/40 p-8"
+                <div className="bg-white rounded-2xl sm:rounded-3xl border border-sand-dark/40 p-6 sm:p-8"
                     style={{ boxShadow: '0 4px 24px rgba(26,22,18,0.07)' }}>
                     <form onSubmit={handleLogin} className="space-y-4">
                         <div>

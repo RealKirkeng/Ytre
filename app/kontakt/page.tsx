@@ -48,7 +48,7 @@ export default function KontaktPage() {
     };
 
     return (
-        <div className="min-h-screen px-4 sm:px-6 py-16 max-w-2xl mx-auto">
+        <div className="min-h-screen px-4 sm:px-6 pt-20 sm:pt-24 pb-16 max-w-2xl mx-auto">
             {/* Header */}
             <div className="text-center mb-12">
                 <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-white text-xl mx-auto mb-5"
@@ -132,7 +132,7 @@ export default function KontaktPage() {
             {/* Info cards */}
             <div className="grid grid-cols-2 gap-4 mt-6">
                 {[
-                    { icon: '📬', label: 'E-post', value: 'kontakt@paragraf100.no' },
+                    { icon: '📬', label: 'E-post', value: 'kontakt@ytre.no' },
                     { icon: '⏱️', label: 'Responstid', value: 'Innen 24 timer' },
                 ].map((item) => (
                     <div key={item.label} className="bg-white rounded-2xl border border-sand-dark/40 p-4 text-center shadow-card">

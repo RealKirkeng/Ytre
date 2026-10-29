@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyToken } from '@/lib/local-auth.server';
-import fs from 'fs';
-import path from 'path';
+import { getAllPostsAdmin } from '@/lib/local-store.server';
 
 export const runtime = 'nodejs';
-
-const POSTS_FILE = path.join(process.cwd(), 'data', 'posts.json');
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 // GET — admin only — returns ALL posts (any status)
 export async function GET(req: NextRequest) {
@@ -14,11 +13,12 @@ export async function GET(req: NextRequest) {
     if (!user?.isAdmin) return NextResponse.json({ error: 'Ikke tilgang.' }, { status: 403 });
 
     try {
-        if (!fs.existsSync(POSTS_FILE)) return NextResponse.json([]);
-        const all = JSON.parse(fs.readFileSync(POSTS_FILE, 'utf-8'));
-        return NextResponse.json(
-            all.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-        );
+        const posts = getAllPostsAdmin();
+        return NextResponse.json(posts, {
+            headers: {
+                'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+            },
+        });
     } catch {
         return NextResponse.json([]);
     }

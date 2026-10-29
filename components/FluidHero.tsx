@@ -6,23 +6,21 @@ import { PenLine, Megaphone, HeartHandshake, ShieldCheck } from 'lucide-react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { MagneticButton } from './MagneticButton';
 
+const HERO_WORDS = [
+    "DEMOKRATI", "YTRINGSFRIHET", "NYHETER", "MENINGER", "SAMFUNN",
+    "DEBATT", "RØST", "MANGFOLD", "ENGASJEMENT", "ÅPENHET",
+    "RETTFERDIGHET", "KRONIKK", "FRITT ORD", "GRUNNLOVEN"
+];
+const MARQUEE_TEXT = Array(7).fill(HERO_WORDS.join("  ·  ")).join("  ·  ");
+
 export function FluidHero() {
     const { scrollY } = useScroll();
     const y1 = useTransform(scrollY, [0, 500], [0, 100]);
     const y2 = useTransform(scrollY, [0, 500], [0, 150]);
     const y3 = useTransform(scrollY, [0, 500], [0, 50]);
 
-    const words = [
-        "DEMOKRATI", "YTRINGSFRIHET", "NYHETER", "MENINGER", "SAMFUNN",
-        "DEBATT", "RØST", "MANGFOLD", "ENGASJEMENT", "ÅPENHET",
-        "RETTFERDIGHET", "KRONIKK", "FRITT ORD", "GRUNNLOVEN"
-    ];
-
-    // Create a really long string so it spans far beyond the viewport
-    const marqueeText = [...words, ...words, ...words, ...words, ...words, ...words, ...words].join("  ·  ");
-
     return (
-        <section className="relative overflow-hidden px-4 sm:px-6 lg:px-8 pt-24 pb-20 w-full h-full flex items-center justify-center">
+        <section className="relative overflow-hidden px-4 sm:px-6 lg:px-8 pt-20 sm:pt-24 pb-14 sm:pb-20 w-full h-full flex items-center justify-center">
             {/* Ambient Background Glow */}
             <div className="absolute inset-0 bg-gradient-to-b from-white/40 via-transparent to-sand/20 pointer-events-none z-20" />
 
@@ -31,32 +29,32 @@ export function FluidHero() {
 
                 {/* Row 1: Left to Right */}
                 <motion.div style={{ y: y1, animationDuration: '750s' }} className="flex w-max animate-marquee-right text-[4.5vw] leading-none text-ink">
-                    <span className="pr-12">{marqueeText}  ·  </span>
-                    <span className="pr-12">{marqueeText}  ·  </span>
+                    <span className="pr-12">{MARQUEE_TEXT}  ·  </span>
+                    <span className="pr-12">{MARQUEE_TEXT}  ·  </span>
                 </motion.div>
 
                 {/* Row 2: Right to Left */}
                 <motion.div style={{ y: y2, animationDuration: '950s' }} className="flex w-max animate-marquee-left text-[6.5vw] leading-none text-fjord ml-[-20vw]">
-                    <span className="pr-12">{marqueeText}  ·  </span>
-                    <span className="pr-12">{marqueeText}  ·  </span>
+                    <span className="pr-12">{MARQUEE_TEXT}  ·  </span>
+                    <span className="pr-12">{MARQUEE_TEXT}  ·  </span>
                 </motion.div>
 
                 {/* Row 3: Left to Right */}
                 <motion.div style={{ y: y3, animationDuration: '700s' }} className="flex w-max animate-marquee-right text-[4vw] leading-none text-ink opacity-80 ml-[-5vw]">
-                    <span className="pr-12">{marqueeText}  ·  </span>
-                    <span className="pr-12">{marqueeText}  ·  </span>
+                    <span className="pr-12">{MARQUEE_TEXT}  ·  </span>
+                    <span className="pr-12">{MARQUEE_TEXT}  ·  </span>
                 </motion.div>
 
                 {/* Row 4: Right to Left */}
                 <motion.div style={{ y: y1, animationDuration: '850s' }} className="flex w-max animate-marquee-left text-[5.5vw] leading-none text-ink opacity-60 ml-[-30vw]">
-                    <span className="pr-12">{marqueeText}  ·  </span>
-                    <span className="pr-12">{marqueeText}  ·  </span>
+                    <span className="pr-12">{MARQUEE_TEXT}  ·  </span>
+                    <span className="pr-12">{MARQUEE_TEXT}  ·  </span>
                 </motion.div>
 
                 {/* Row 5: Left to Right */}
                 <motion.div style={{ y: y2, animationDuration: '1050s' }} className="flex w-max animate-marquee-right text-[7vw] leading-none text-fjord opacity-50 ml-[-15vw]">
-                    <span className="pr-12">{marqueeText}  ·  </span>
-                    <span className="pr-12">{marqueeText}  ·  </span>
+                    <span className="pr-12">{MARQUEE_TEXT}  ·  </span>
+                    <span className="pr-12">{MARQUEE_TEXT}  ·  </span>
                 </motion.div>
             </div>
 
@@ -108,8 +106,8 @@ export function FluidHero() {
                     initial={{ y: 20, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
                     transition={{ delay: 0.2, duration: 0.8, ease: "easeOut" }}
-                    className="font-display font-black text-ink leading-[1.05] tracking-tight mb-8"
-                    style={{ fontSize: 'clamp(3rem, 8vw, 6.5rem)', textShadow: '0 10px 40px rgba(0,0,0,0.05)' }}
+                    className="font-display font-black text-ink leading-[1.05] tracking-tight mb-6 sm:mb-8"
+                    style={{ fontSize: 'clamp(2.4rem, 8vw, 6.5rem)', textShadow: '0 10px 40px rgba(0,0,0,0.05)' }}
                 >
                     Din plass.<br />
                     <span className="relative">
@@ -130,19 +128,19 @@ export function FluidHero() {
                     initial={{ y: 20, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
                     transition={{ delay: 0.3, duration: 0.8, ease: "easeOut" }}
-                    className="flex flex-wrap justify-center gap-6 sm:gap-12 mb-10"
+                    className="flex flex-wrap justify-center gap-3 sm:gap-12 mb-8 sm:mb-10"
                 >
-                    <div className="flex items-center gap-2 text-ink-400">
-                        <ShieldCheck className="w-5 h-5 text-green-500" />
-                        <span className="text-sm font-medium">Trygt farvann</span>
+                    <div className="flex items-center gap-1.5 sm:gap-2 text-ink-400">
+                        <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5 text-green-500 shrink-0" />
+                        <span className="text-xs sm:text-sm font-medium">Trygt farvann</span>
                     </div>
-                    <div className="flex items-center gap-2 text-ink-400">
-                        <Megaphone className="w-5 h-5 text-amber-500" />
-                        <span className="text-sm font-medium">Null filter</span>
+                    <div className="flex items-center gap-1.5 sm:gap-2 text-ink-400">
+                        <Megaphone className="w-4 h-4 sm:w-5 sm:h-5 text-amber-500 shrink-0" />
+                        <span className="text-xs sm:text-sm font-medium">Null filter</span>
                     </div>
-                    <div className="flex items-center gap-2 text-ink-400">
-                        <HeartHandshake className="w-5 h-5 text-rose-400" />
-                        <span className="text-sm font-medium">Ekte engasjement</span>
+                    <div className="flex items-center gap-1.5 sm:gap-2 text-ink-400">
+                        <HeartHandshake className="w-4 h-4 sm:w-5 sm:h-5 text-rose-400 shrink-0" />
+                        <span className="text-xs sm:text-sm font-medium">Ekte engasjement</span>
                     </div>
                 </motion.div>
 

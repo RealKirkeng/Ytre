@@ -39,4 +39,22 @@ declare module 'lucide-react' {
     export const ShieldCheck: Icon;
     export const SlidersHorizontal: Icon;
     export const ArrowDownWideNarrow: Icon;
+    export const Settings: Icon;
+    export const LogIn: Icon;
+    export const ArrowRight: Icon;
+    export const Shield: Icon;
+    export const AlertTriangle: Icon;
+    export const CheckCircle2: Icon;
+    export const Send: Icon;
+    export const Mail: Icon;
+    export const Scale: Icon;
+    export const FileText: Icon;
+    export const ExternalLink: Icon;
+    export const UserPlus: Icon;
+    export const AlignLeft: Icon;
+    export const AlignCenter: Icon;
+    export const AlignRight: Icon;
+    export const Maximize2: Icon;
+    export const Code2: Icon;
+    export const ImageIcon: Icon;
 }

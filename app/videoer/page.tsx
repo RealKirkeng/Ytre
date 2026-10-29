@@ -1,5 +1,4 @@
-import { Navbar } from '@/components/Navbar';
-import { getSettings } from '@/lib/local-store.server';
+import { getSettings, getVideos } from '@/lib/local-store.server';
 import { redirect } from 'next/navigation';
 import { VideoClientFeed } from './VideoClientFeed';
 import Link from 'next/link';
@@ -14,17 +13,17 @@ export default function VideoerPage() {
         redirect('/');
     }
 
+    const videos = getVideos();
+
     return (
         <main className="min-h-screen bg-sand text-ink relative overflow-hidden">
             {/* Background Texture (similar to homepage) */}
             <div className="absolute inset-x-0 top-0 h-[80vh] bg-gradient-to-b from-fjord/10 via-amber/5 to-transparent pointer-events-none" />
 
-            <Navbar />
-
-            <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 sm:pt-24 pb-12">
 
                 {/* Dedicated Video Hero Section */}
-                <div className="bg-white rounded-[2rem] p-8 sm:p-14 mb-12 shadow-sm border border-sand-dark/40 relative overflow-hidden flex flex-col items-center text-center">
+                <div className="bg-white rounded-2xl sm:rounded-[2rem] p-6 sm:p-14 mb-12 shadow-sm border border-sand-dark/40 relative overflow-hidden flex flex-col items-center text-center">
                     <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-indigo-50/60 to-transparent pointer-events-none" />
 
                     <div className="relative z-10 w-full max-w-2xl mx-auto flex flex-col items-center">
@@ -57,7 +56,7 @@ export default function VideoerPage() {
                 </div>
 
                 {/* The client component that loads and displays the video feed */}
-                <VideoClientFeed />
+                <VideoClientFeed initialVideos={videos} />
             </div>
         </main>
     );

@@ -123,5 +123,5 @@ async function gen(inputFile, outputFile, idKey, nameKey) {
     writeFileSync(outputFile, JSON.stringify({ W, H, features }, null, 2), 'utf8');
 }
 
-await gen('public/norway-fylker.geojson', 'public/norway-fylker-paths.json', 'fylkesnummer', 'fylkesnavn');
-await gen('public/norway-kommuner.geojson', 'public/norway-kommuner-paths.json', 'kommunenummer', 'kommunenavn');
+await gen('scripts/data/norway-fylker.geojson', 'public/norway-fylker-paths.json', 'fylkesnummer', 'fylkesnavn');
+await gen('scripts/data/norway-kommuner.geojson', 'public/norway-kommuner-paths.json', 'kommunenummer', 'kommunenavn');

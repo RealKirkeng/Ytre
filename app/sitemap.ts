@@ -2,10 +2,10 @@ import { MetadataRoute } from 'next';
 import { getPosts } from '@/lib/local-store.server';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-    const baseUrl = 'https://paragraf100.no';
+    const baseUrl = 'https://ytre.no';
 
     // Static routes
-    const routes = ['', '/skriv', '/profil', '/auth/login', '/auth/signup', '/vilkar', '/personvern'].map((route) => ({
+    const routes = ['', '/skriv', '/profil', '/auth/login', '/auth/signup', '/vilkar', '/personvern', '/om-oss', '/kontakt', '/retningslinjer', '/medielisensiering', '/bli-verifiserer', '/juridisk'].map((route) => ({
         url: `${baseUrl}${route}`,
         lastModified: new Date().toISOString().split('T')[0],
         changeFrequency: (route === '' ? 'daily' : 'weekly') as 'daily' | 'weekly',

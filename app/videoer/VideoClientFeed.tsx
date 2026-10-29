@@ -88,11 +88,12 @@ function VideoCard({ video }: { video: LocalVideo }) {
     );
 }
 
-export function VideoClientFeed() {
-    const [videos, setVideos] = useState<LocalVideo[]>([]);
-    const [loading, setLoading] = useState(true);
+export function VideoClientFeed({ initialVideos = [] }: { initialVideos?: LocalVideo[] }) {
+    const [videos, setVideos] = useState<LocalVideo[]>(initialVideos);
+    const [loading, setLoading] = useState(initialVideos.length === 0);
 
     useEffect(() => {
+        if (initialVideos.length > 0) return;
         fetch('/api/videos')
             .then(r => r.json())
             .then(data => {
@@ -100,7 +101,7 @@ export function VideoClientFeed() {
                 setLoading(false);
             })
             .catch(() => setLoading(false));
-    }, []);
+    }, [initialVideos.length]);
 
     if (loading) {
         return <div className="py-20 flex justify-center"><Loader2 className="w-8 h-8 animate-spin text-ink-300" /></div>;

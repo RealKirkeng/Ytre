@@ -1,15 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { FeaturedCard, StandardCard, SmallCard, AdCard } from './ArticleCard';
+import { FeaturedCard, StandardCard, AdCard } from './ArticleCard';
 import type { Post } from './ArticleCard';
 
 export function MasonryGrid({ posts }: { posts: Post[] }) {
-    const [mounted, setMounted] = useState(false);
-
-    useEffect(() => {
-        setMounted(true);
-    }, []);
 
     if (!posts.length) {
         return (
@@ -61,10 +55,23 @@ export function MasonryGrid({ posts }: { posts: Post[] }) {
     // The server can safely calculate modulo distribution since it's deterministic.
     // This prevents a layout shift ("jump") from 1 to 3 columns on mount.
     return (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 items-start">
-            <div className="flex flex-col gap-5">{col0.map((item, i) => renderItem(item, 0, i))}</div>
-            <div className="flex flex-col gap-5">{col1.map((item, i) => renderItem(item, 1, i))}</div>
-            <div className="flex flex-col gap-5">{col2.map((item, i) => renderItem(item, 2, i))}</div>
-        </div>
+        <>
+            {/* Desktop multi-column masonry */}
+            <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-5 items-start">
+                <div className="flex flex-col gap-5">{col0.map((item, i) => renderItem(item, 0, i))}</div>
+                <div className="flex flex-col gap-5">{col1.map((item, i) => renderItem(item, 1, i))}</div>
+                <div className="flex flex-col gap-5">{col2.map((item, i) => renderItem(item, 2, i))}</div>
+            </div>
+
+            {/* Mobile single column - maintains natural chronological order */}
+            <div className="flex sm:hidden flex-col gap-4">
+                {items.map((item, i) => {
+                    if (item === 'ad') return <AdCard key={`ad-mobile-${i}`} />;
+                    const post = item as Post;
+                    if (i === 0) return <FeaturedCard key={post.id} post={post} index={0} />;
+                    return <StandardCard key={post.id} post={post} index={i} />;
+                })}
+            </div>
+        </>
     );
 }

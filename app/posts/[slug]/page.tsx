@@ -1,16 +1,31 @@
-import { getPostBySlug } from '@/lib/local-store.server';
+import { getPostBySlug, getEnrichedPostBySlug } from '@/lib/local-store.server';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowLeft, Clock, Eye } from 'lucide-react';
 import { CommentSection } from '@/components/CommentSection';
-import { CATEGORY_LABEL, CATEGORY_SLUG } from '@/components/ArticleCard';
+import {
+    CATEGORY_LABEL,
+    CATEGORY_SLUG,
+    CATEGORY_ICON,
+    AUDIENCE_LABEL,
+    READING_LEVEL_LABEL,
+    ORG_LEVEL_LABEL,
+} from '@/lib/constants';
 import { ViewTracker } from '@/components/ViewTracker';
 import ReactionPanel from '@/components/ReactionPanel';
 import { ReadingProgress } from '@/components/ReadingProgress';
-import fs from 'fs';
-import path from 'path';
+import { ArticleInlineImage } from '@/components/ArticleInlineImage';
+import { ReportButton } from '@/components/ReportButton';
+
+function formatAuthors(author: string, coAuthors?: string[]): string {
+    if (!coAuthors || coAuthors.length === 0) return author;
+    const all = [author, ...coAuthors.filter(Boolean)];
+    if (all.length === 1) return all[0];
+    if (all.length === 2) return `Av ${all[0]} og ${all[1]}`;
+    return `Av ${all.slice(0, -1).join(', ')} og ${all[all.length - 1]}`;
+}
 
 // ── Mock posts as fallback for the demo slugs ─────────────────────────────────
 const MOCK_MAP: Record<string, any> = {
@@ -78,13 +93,22 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const { slug } = await params;
     const local = getPostBySlug(slug);
     const post = local || MOCK_MAP[slug];
-    if (!post) return { title: 'Artikkel ikke funnet — Paragraf100' };
-    return { title: `${post.title} — Paragraf100`, description: post.content.slice(0, 150) };
+    if (!post) return { title: 'Artikkel ikke funnet — Ytre' };
+    return { title: `${post.title} — Ytre`, description: post.content.slice(0, 150) };
 }
 
-// Render markdown-like paragraphs with bold/italic support
+// Render markdown-like paragraphs with bold/italic and inline image support
 function renderBody(content: string) {
+    if (!content) return null;
     return content.split('\n\n').filter(Boolean).map((para, i) => {
+        if (para.startsWith(':::image:')) {
+            try {
+                const data = JSON.parse(para.slice(9, -3));
+                return <ArticleInlineImage key={i} {...data} />;
+            } catch {
+                return null;
+            }
+        }
         if (para.startsWith('## ')) return <h2 key={i} className="font-display text-2xl font-bold text-ink mt-10 mb-4">{para.slice(3)}</h2>;
         if (para.startsWith('### ')) return <h3 key={i} className="font-display text-xl font-semibold text-ink mt-8 mb-3">{para.slice(4)}</h3>;
         if (para.startsWith('> ')) return <blockquote key={i} className="border-l-4 border-fjord/40 pl-5 italic text-ink-400 my-6">{para.slice(2)}</blockquote>;
@@ -101,28 +125,15 @@ export default async function PostPage({ params }: PageProps) {
     const { slug } = await params;
 
     // Check local storage first, then fall back to mock data
-    const localPost = getPostBySlug(slug);
+    const enrichedLocal = getEnrichedPostBySlug(slug);
     const mockPost = MOCK_MAP[slug];
-    const raw = localPost || mockPost;
-    if (!raw) notFound();
+    const post = enrichedLocal || (mockPost ? {
+        ...mockPost,
+        created_at: mockPost.created_at || mockPost.createdAt || new Date().toISOString(),
+        profiles: mockPost.profiles || { username: mockPost.authorName || 'Anonym' }
+    } : null);
 
-    // Normalise: local posts use `createdAt`, mock posts vary
-    // Join with user data for real avatar
-    let users: any[] = [];
-    try {
-        users = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'users.json'), 'utf-8'));
-    } catch (e) { }
-
-    const author = users.find(u => u.id === raw.authorId);
-
-    const post = {
-        ...raw,
-        created_at: raw.created_at || raw.createdAt || new Date().toISOString(),
-        profiles: author ? {
-            username: author.name,
-            avatar_url: author.avatarUrl
-        } : (raw.profiles || { username: raw.authorName || 'Anonym' }),
-    };
+    if (!post) notFound();
 
     const paragraphs = post.content.split('\n\n').filter(Boolean);
     const dateStr = new Date(post.created_at).toLocaleDateString('nb-NO', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -131,9 +142,9 @@ export default async function PostPage({ params }: PageProps) {
     const readingMinutes = Math.max(1, Math.ceil(wordCount / 200));
 
     return (
-        <div className="min-h-screen px-4 sm:px-6 lg:px-8 py-10 max-w-[75ch] mx-auto">
+        <div className="min-h-screen px-4 sm:px-6 lg:px-8 py-6 sm:py-10 max-w-[72ch] mx-auto">
             <ReadingProgress />
-            <Link href="/" className="inline-flex items-center gap-1.5 text-sm text-ink-300 hover:text-ink transition-colors mb-8 group">
+            <Link href="/" className="inline-flex items-center gap-1.5 text-sm text-ink-300 hover:text-ink transition-colors mb-5 sm:mb-8 group">
                 <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
                 Tilbake til forsiden
             </Link>
@@ -144,7 +155,7 @@ export default async function PostPage({ params }: PageProps) {
             <article>
                 {/* Hero image — base64 or URL */}
                 {post.image_url && (
-                    <div className="relative w-full h-64 sm:h-80 rounded-3xl overflow-hidden mb-8 shadow-lg">
+                    <div className="relative w-full h-52 sm:h-72 lg:h-80 rounded-2xl sm:rounded-3xl overflow-hidden mb-6 sm:mb-8 shadow-lg">
                         {isBase64 ? (
                             // eslint-disable-next-line @next/next/no-img-element
                             <img src={post.image_url} alt={post.title} className="w-full h-full object-cover" />
@@ -154,52 +165,128 @@ export default async function PostPage({ params }: PageProps) {
                     </div>
                 )}
 
-                <header className="mb-10">
-                    <div className="flex items-center gap-2 mb-4">
-                        <Link href={`/category/${CATEGORY_SLUG[post.category] || post.category}`}
-                            className={`badge badge-${post.category} hover:opacity-80 transition-opacity`}>
-                            {CATEGORY_LABEL[post.category] || post.category}
+                <header className="mb-6 sm:mb-10">
+                    {/* Filter buttons on the article */}
+                    <div className="flex flex-wrap items-center gap-2 mb-3 sm:mb-4">
+                        {/* Category liquid glass bubble */}
+                        <Link
+                            href={`/category/${CATEGORY_SLUG[post.category] || post.category}`}
+                            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold cursor-pointer transition-all duration-200 select-none bg-white/80 hover:bg-white text-ink hover:text-fjord border border-white/80 shadow-[0_2px_10px_rgba(0,0,0,0.05),inset_0_1px_0_rgba(255,255,255,0.95)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,1)] hover:scale-[1.03] backdrop-blur-md"
+                            style={{
+                                WebkitBackdropFilter: 'blur(16px) saturate(180%)',
+                                backdropFilter: 'blur(16px) saturate(180%)',
+                            }}
+                            title={`Vis alle innlegg i ${CATEGORY_LABEL[post.category] || post.category}`}
+                        >
+                            {CATEGORY_ICON[post.category] && (
+                                <span className="text-[13px] leading-none">{CATEGORY_ICON[post.category]}</span>
+                            )}
+                            <span className="leading-none">{CATEGORY_LABEL[post.category] || post.category}</span>
                         </Link>
+
+                        {/* Angle / Synsvinkel */}
+                        {post.angle && (
+                            <Link
+                                href={`/?angle=${encodeURIComponent(post.angle)}`}
+                                className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-sand hover:bg-sand-dark/40 text-ink-500 border border-sand-dark/60 transition-all hover:scale-105"
+                                title={`Filtrer på synsvinkel: ${post.angle}`}
+                            >
+                                <span>{post.angle}</span>
+                            </Link>
+                        )}
+
+                        {/* Reading Level / Lesenivå */}
+                        {post.readingLevel && (
+                            <Link
+                                href={`/?level=${post.readingLevel}`}
+                                className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-sand hover:bg-sand-dark/40 text-ink-500 border border-sand-dark/60 transition-all hover:scale-105"
+                                title="Filtrer på lesenivå"
+                            >
+                                <span>📖 {READING_LEVEL_LABEL[post.readingLevel] || post.readingLevel} nivå</span>
+                            </Link>
+                        )}
+
+                        {/* Audience / Målgruppe */}
+                        {post.audience && post.audience.length > 0 && post.audience.map((aud: string) => (
+                            <Link
+                                key={aud}
+                                href={`/?audience=${aud}`}
+                                className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-sand hover:bg-sand-dark/40 text-ink-500 border border-sand-dark/60 transition-all hover:scale-105"
+                                title="Filtrer på målgruppe"
+                            >
+                                <span>👥 {AUDIENCE_LABEL[aud] || aud}</span>
+                            </Link>
+                        ))}
+
+                        {/* Org Level */}
+                        {post.orgLevel && (
+                            <Link
+                                href={`/?orgLevel=${post.orgLevel}`}
+                                className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-fjord/10 text-fjord-dark hover:bg-fjord/20 border border-fjord/20 transition-all hover:scale-105"
+                                title="Filtrer på avsendertype"
+                            >
+                                <span>🏛️ {ORG_LEVEL_LABEL[post.orgLevel] || post.orgLevel}</span>
+                            </Link>
+                        )}
+
+                        {/* Regions */}
+                        {post.regions && post.regions.length > 0 && post.regions.map((r: { id: string; name: string }) => (
+                            <Link
+                                key={r.id}
+                                href={`/?region=${r.id}`}
+                                className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-fjord/10 text-fjord-dark hover:bg-fjord/20 border border-fjord/20 transition-all hover:scale-105"
+                                title={`Filtrer på region: ${r.name}`}
+                            >
+                                <span>📍 {r.name}</span>
+                            </Link>
+                        ))}
+
+                        {/* Licensable badge */}
+                        {post.allowLicensing && (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber/15 border border-amber/30 text-[11px] font-bold text-amber-800">
+                                <span>✓ Lisensierbar</span>
+                            </span>
+                        )}
                     </div>
 
-                    <h1 className="font-display text-4xl sm:text-5xl font-bold text-ink leading-tight mb-4 tracking-tight">
+                    <h1 className="font-display text-2xl sm:text-4xl lg:text-5xl font-bold text-ink leading-tight mb-3 sm:mb-4 tracking-tight break-words hyphens-auto">
                         {post.title}
                     </h1>
                     {post.subtitle && (
-                        <p className="text-xl text-ink-400 mb-6 leading-snug">{post.subtitle}</p>
+                        <p className="text-base sm:text-xl text-ink-400 mb-4 sm:mb-6 leading-relaxed">{post.subtitle}</p>
                     )}
 
-                    <div className="flex flex-wrap items-center gap-4 pb-8 border-b border-sand-dark/40">
+                    <div className="flex flex-wrap items-center justify-between gap-3 pb-5 sm:pb-8 border-b border-sand-dark/40">
                         <div className="flex items-center gap-2.5">
                             {post.profiles?.avatar_url ? (
                                 <img
                                     src={post.profiles.avatar_url}
                                     alt=""
-                                    className="w-10 h-10 rounded-full border border-sand-dark object-cover shrink-0"
+                                    className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-sand-dark object-cover shrink-0"
                                 />
                             ) : (
-                                <div className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold shrink-0 shadow-sm"
+                                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-white text-xs sm:text-sm font-bold shrink-0 shadow-sm"
                                     style={{ background: 'linear-gradient(135deg,#5B89A8,#A87B8E)' }}>
                                     {(post.profiles?.username || 'A')[0].toUpperCase()}
                                 </div>
                             )}
                             <div>
                                 <p className="text-sm font-semibold text-ink leading-none">
-                                    {post.profiles?.username || 'Anonym'}
+                                    {formatAuthors(post.profiles?.username || post.authorName || 'Anonym', post.coAuthors)}
                                     {post.organization && (
                                         <span className="text-fjord ml-1.5 font-bold italic opacity-85">
                                             · {post.position && `${post.position}, `}{post.organization}
                                         </span>
                                     )}
                                 </p>
-                                <p className="text-xs text-ink-300 mt-0.5 flex items-center gap-2">
-                                    <Clock className="w-3 h-3" />{dateStr}
+                                <p className="text-xs text-ink-300 mt-1 flex flex-wrap items-center gap-2">
+                                    <span className="inline-flex items-center gap-1"><Clock className="w-3 h-3" />{dateStr}</span>
                                     <span className="text-sand-dark/60">·</span>
-                                    <span>⏱️ {readingMinutes} min lesetid</span>
+                                    <span>⏱️ {readingMinutes} min</span>
                                 </p>
                             </div>
                         </div>
-                        <span className="ml-auto flex items-center gap-1 text-xs text-ink-300">
+                        <span className="flex items-center gap-1 text-xs text-ink-300 ml-auto sm:ml-0">
                             <Eye className="w-3.5 h-3.5" />{post.view_count || 0} visninger
                         </span>
                     </div>
@@ -210,12 +297,22 @@ export default async function PostPage({ params }: PageProps) {
                     {renderBody(post.content)}
                 </div>
 
-                <div className="mt-12 pt-6 border-t border-sand-dark/20 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="mt-8 sm:mt-12 pt-6 border-t border-sand-dark/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3.5">
                     <p className="text-sm font-semibold text-ink-300">Hva synes du om innlegget?</p>
                     <ReactionPanel targetId={post.slug} initialReactions={post.reactions || {}} />
                 </div>
 
-                <div className="mt-12">
+                {/* Notice & Takedown modal trigger (e-handelsloven § 18) */}
+                <div className="mt-3 flex items-center justify-end">
+                    <ReportButton
+                        postId={post.id}
+                        postTitle={post.title}
+                        postSlug={post.slug}
+                        postAuthorName={post.authorName}
+                    />
+                </div>
+
+                <div className="mt-8 sm:mt-12">
                     <CommentSection postId={post.id} />
                 </div>
             </article>

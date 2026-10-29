@@ -6,6 +6,9 @@ module.exports = {
     ],
     theme: {
         extend: {
+            screens: {
+                xs: '480px',
+            },
             colors: {
                 // Nordic pastel background tones
                 sand: { DEFAULT: '#F5F0E8', dark: '#EAE3D6', light: '#FAF7F2' },

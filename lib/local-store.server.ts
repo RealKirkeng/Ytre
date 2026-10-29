@@ -5,6 +5,7 @@
 
 import fs from 'fs';
 import path from 'path';
+import { getAllUsers } from './local-auth.server';
 
 const DATA_DIR = path.join(process.cwd(), 'data');
 
@@ -43,6 +44,7 @@ export interface LocalPost {
     organization?: string;
     position?: string;
     orgLevel?: string;
+    coAuthors?: string[];
     allowLicensing?: boolean;
     reactions?: Record<string, string[]>; // { reactionType: [userId1, userId2] }
 }
@@ -102,58 +104,86 @@ const COMMENTS_FILE = path.join(DATA_DIR, 'comments.json');
 const SETTINGS_FILE = path.join(DATA_DIR, 'settings.json');
 const VIDEOS_FILE = path.join(DATA_DIR, 'videos.json');
 
-// ── In-Memory Caches ──────────────────────────────────────────────────────────
+function getFileMtime(filePath: string): number {
+    try {
+        if (!fs.existsSync(filePath)) return 0;
+        return fs.statSync(filePath).mtimeMs;
+    } catch {
+        return 0;
+    }
+}
+
+// ── In-Memory Caches with Auto-Mtime Invalidation ─────────────────────────────
+let postsMtime = 0;
 let postsCache: LocalPost[] | null = null;
+
+let commentsMtime = 0;
 let commentsCache: LocalComment[] | null = null;
+
+let settingsMtime = 0;
 let settingsCache: SiteSettings | null = null;
+
+let videosMtime = 0;
 let videosCache: LocalVideo[] | null = null;
 
 function getCachedPosts(): LocalPost[] {
-    if (postsCache === null) {
+    const currentMtime = getFileMtime(POSTS_FILE);
+    if (postsCache === null || currentMtime !== postsMtime) {
         postsCache = readJSON<LocalPost[]>(POSTS_FILE, []);
+        postsMtime = currentMtime;
     }
     return postsCache;
 }
 
 function setCachedPosts(posts: LocalPost[]): void {
-    postsCache = posts;
     writeJSON(POSTS_FILE, posts);
+    postsMtime = getFileMtime(POSTS_FILE);
+    postsCache = posts;
 }
 
 function getCachedComments(): LocalComment[] {
-    if (commentsCache === null) {
+    const currentMtime = getFileMtime(COMMENTS_FILE);
+    if (commentsCache === null || currentMtime !== commentsMtime) {
         commentsCache = readJSON<LocalComment[]>(COMMENTS_FILE, []);
+        commentsMtime = currentMtime;
     }
     return commentsCache;
 }
 
 function setCachedComments(comments: LocalComment[]): void {
-    commentsCache = comments;
     writeJSON(COMMENTS_FILE, comments);
+    commentsMtime = getFileMtime(COMMENTS_FILE);
+    commentsCache = comments;
 }
 
 function getCachedSettings(): SiteSettings {
-    if (settingsCache === null) {
+    const currentMtime = getFileMtime(SETTINGS_FILE);
+    if (settingsCache === null || currentMtime !== settingsMtime) {
         settingsCache = readJSON<SiteSettings>(SETTINGS_FILE, DEFAULT_SETTINGS);
+        settingsMtime = currentMtime;
     }
     return settingsCache;
 }
 
 function setCachedSettings(settings: SiteSettings): void {
-    settingsCache = settings;
     writeJSON(SETTINGS_FILE, settings);
+    settingsMtime = getFileMtime(SETTINGS_FILE);
+    settingsCache = settings;
 }
 
 function getCachedVideos(): LocalVideo[] {
-    if (videosCache === null) {
+    const currentMtime = getFileMtime(VIDEOS_FILE);
+    if (videosCache === null || currentMtime !== videosMtime) {
         videosCache = readJSON<LocalVideo[]>(VIDEOS_FILE, []);
+        videosMtime = currentMtime;
     }
     return videosCache;
 }
 
 function setCachedVideos(videos: LocalVideo[]): void {
-    videosCache = videos;
     writeJSON(VIDEOS_FILE, videos);
+    videosMtime = getFileMtime(VIDEOS_FILE);
+    videosCache = videos;
 }
 
 // ── Settings operations ───────────────────────────────────────────────────────
@@ -181,8 +211,85 @@ export function getPosts(category?: string, region?: string): LocalPost[] {
     return all.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 }
 
+export interface EnrichedPost extends Omit<LocalPost, 'createdAt'> {
+    created_at: string;
+    comment_count: number;
+    profiles: {
+        username: string;
+        avatar_url?: string;
+    };
+}
+
+export function getEnrichedPosts(filter?: {
+    category?: string;
+    region?: string;
+    authorId?: string;
+    includeUnpublished?: boolean;
+}): EnrichedPost[] {
+    const posts = getCachedPosts();
+    const comments = getCachedComments();
+    const users = getAllUsers();
+
+    const userMap = new Map<string, { username: string; avatarUrl?: string }>();
+    for (let i = 0; i < users.length; i++) {
+        const u = users[i];
+        userMap.set(u.id, { username: u.name, avatarUrl: u.avatarUrl });
+    }
+
+    const commentCountMap = new Map<string, number>();
+    for (let i = 0; i < comments.length; i++) {
+        const c = comments[i];
+        commentCountMap.set(c.postId, (commentCountMap.get(c.postId) || 0) + 1);
+    }
+
+    const result: EnrichedPost[] = [];
+    for (let i = 0; i < posts.length; i++) {
+        const p = posts[i];
+        if (!filter?.includeUnpublished && p.status !== 'published') continue;
+        if (filter?.authorId && p.authorId !== filter.authorId) continue;
+        if (filter?.category && p.category !== filter.category) continue;
+        if (filter?.region && !p.regions?.some(r => r.id === filter.region || r.level === filter.region)) continue;
+
+        const author = userMap.get(p.authorId);
+        result.push({
+            ...p,
+            image_url: p.image_url || undefined,
+            created_at: p.createdAt,
+            profiles: {
+                username: author?.username || p.authorName || 'Anonym',
+                avatar_url: author?.avatarUrl
+            },
+            comment_count: commentCountMap.get(p.id) || 0,
+        });
+    }
+
+    return result.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+}
+
 export function getPostBySlug(slug: string): LocalPost | null {
     return getCachedPosts().find(p => p.slug === slug && p.status === 'published') ?? null;
+}
+
+export function getEnrichedPostBySlug(slug: string): EnrichedPost | null {
+    const post = getPostBySlug(slug);
+    if (!post) return null;
+    const comments = getCachedComments();
+    const users = getAllUsers();
+    const author = users.find(u => u.id === post.authorId);
+    let count = 0;
+    for (let i = 0; i < comments.length; i++) {
+        if (comments[i].postId === post.id) count++;
+    }
+    return {
+        ...post,
+        image_url: post.image_url || undefined,
+        created_at: post.createdAt,
+        profiles: {
+            username: author?.name || post.authorName || 'Anonym',
+            avatar_url: author?.avatarUrl
+        },
+        comment_count: count
+    };
 }
 
 export function getPostById(id: string): LocalPost | null {
@@ -209,6 +316,10 @@ export function incrementViewCount(id: string): void {
     if (p) { p.view_count++; setCachedPosts(posts); }
 }
 
+export function getAllPostsAdmin(): LocalPost[] {
+    return [...getCachedPosts()].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+}
+
 export function getPendingPosts(): LocalPost[] {
     return getCachedPosts()
         .filter(p => p.status === 'pending')
@@ -218,7 +329,15 @@ export function getPendingPosts(): LocalPost[] {
 export function getPostsByAuthor(authorId: string): LocalPost[] {
     return getCachedPosts()
         .filter(p => p.authorId === authorId)
+        .map(p => ({
+            ...p,
+            image_url: p.image_url || undefined
+        }))
         .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+}
+
+export function updateAuthorPostsAvatar(_authorId: string, _avatarUrl: string): void {
+    // No-op: author avatar should never overwrite article cover images
 }
 
 export function updatePost(id: string, updates: Partial<Pick<LocalPost, 'title' | 'subtitle' | 'content' | 'category' | 'status' | 'regions' | 'image_url' | 'imageCaption' | 'photographer' | 'audience' | 'angle' | 'readingLevel' | 'sources' | 'organization' | 'position' | 'orgLevel' | 'allowLicensing' | 'reactions'>>): LocalPost | null {
@@ -236,6 +355,15 @@ export function deletePost(id: string): boolean {
     if (posts.length === after.length) return false;
     setCachedPosts(after);
     return true;
+}
+
+export function incrementPostFlagCount(postIdOrSlug: string): void {
+    const posts = getCachedPosts();
+    const p = posts.find(x => x.id === postIdOrSlug || x.slug === postIdOrSlug);
+    if (p) {
+        p.flag_count = (p.flag_count || 0) + 1;
+        setCachedPosts(posts);
+    }
 }
 
 // ── Comment operations ────────────────────────────────────────────────────────

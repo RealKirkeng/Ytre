@@ -1,0 +1,18 @@
+[
+  {
+    "postId": "b7da6efb-2fa9-4a94-9c47-42e3610c0db0",
+    "postTitle": "K",
+    "postSlug": "k-ttlfc",
+    "postAuthorName": "Test Bruker",
+    "category": "hate_speech",
+    "categoryLabel": "⚖️ Hatefulle ytringer / Diskriminering",
+    "subCategory": "Religion eller livssyn",
+    "details": "Dette er en test av varslingssystemet for å sjekke flyten.",
+    "reporterEmail": "varseltest@eksempel.no",
+    "id": "rep_1793297943643_hlk7g",
+    "status": "investigating",
+    "createdAt": "2026-10-29T18:19:03.643Z",
+    "adminNote": "",
+    "updatedAt": "2026-10-29T18:38:23.305Z"
+  }
+]

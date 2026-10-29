@@ -1,13 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyToken } from '@/lib/local-auth.server';
-import { getPosts, createPost, getPostsByAuthor, updatePost, deletePost, getPostById } from '@/lib/local-store.server';
-import { processBase64Image } from '@/lib/image-upload.server';
-import fs from 'fs';
-import path from 'path';
+import { verifyToken, getUserById } from '@/lib/local-auth.server';
+import { getPosts, createPost, getPostsByAuthor, updatePost, deletePost, getPostById, getEnrichedPosts } from '@/lib/local-store.server';
+import { processBase64Image, processContentImages } from '@/lib/image-upload.server';
 
 export const runtime = 'nodejs';
-
-const POSTS_FILE = path.join(process.cwd(), 'data', 'posts.json');
 
 function generateSlug(title: string): string {
     return title
@@ -25,37 +21,22 @@ export async function GET(req: NextRequest) {
     const authorId = req.nextUrl.searchParams.get('authorId') ?? undefined;
     const orgLevel = req.nextUrl.searchParams.get('orgLevel') ?? undefined;
 
-    let posts = authorId ? getPostsByAuthor(authorId) : getPosts(category);
-    if (orgLevel) {
-        posts = posts.filter(p => p.orgLevel === orgLevel);
-    }
-
-    // Join with user data for avatars
-    const users = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'users.json'), 'utf-8'));
-
     // Auth for authorId access (seeing non-published posts)
     const token = req.cookies.get('auth-token')?.value;
     const user = token ? await verifyToken(token) : null;
     const isOwnerOrAdmin = user && (user.id === authorId || user.isAdmin);
 
-    const enriched = posts
-        .filter(p => p.status === 'published' || isOwnerOrAdmin)
-        .map(p => {
-            const author = users.find((u: any) => u.id === p.authorId);
-            return {
-                ...p,
-                profiles: {
-                    username: p.authorName,
-                    avatar_url: author?.avatarUrl
-                }
-            };
-        });
+    let enriched = getEnrichedPosts({
+        category,
+        region,
+        authorId,
+        includeUnpublished: Boolean(isOwnerOrAdmin),
+    });
 
-    if (region) {
-        return NextResponse.json(enriched.filter(p =>
-            p.regions?.some(r => r.id === region || r.level === region)
-        ));
+    if (orgLevel) {
+        enriched = enriched.filter(p => p.orgLevel === orgLevel);
     }
+
     return NextResponse.json(enriched);
 }
 
@@ -65,19 +46,20 @@ export async function POST(req: NextRequest) {
     const user = token ? await verifyToken(token) : null;
     if (!user) return NextResponse.json({ error: 'Du må logge inn for å sende inn.' }, { status: 401 });
 
-    const { title, subtitle, content, category, image_url, regions, audience, angle, readingLevel, sources, imageCaption, photographer, organization, position, orgLevel } = await req.json();
+    const { title, subtitle, content, category, image_url, regions, audience, angle, readingLevel, sources, imageCaption, photographer, organization, position, orgLevel, coAuthors, allowLicensing } = await req.json();
     if (!title?.trim()) return NextResponse.json({ error: 'Tittel er påkrevd.' }, { status: 400 });
     if (!content?.trim()) return NextResponse.json({ error: 'Innhold er påkrevd.' }, { status: 400 });
     if (!category) return NextResponse.json({ error: 'Kategori er påkrevd.' }, { status: 400 });
     if (content.length < 50) return NextResponse.json({ error: 'Artikkelen er for kort (min. 50 tegn).' }, { status: 400 });
 
     const processedImageUrl = await processBase64Image(image_url, 'post');
+    const processedContent = await processContentImages(content.trim());
 
     const post = createPost({
         slug: generateSlug(title),
         title: title.trim(),
         subtitle: subtitle?.trim() || undefined,
-        content: content.trim(),
+        content: processedContent,
         category,
         image_url: processedImageUrl || undefined,
         regions: regions || undefined,
@@ -90,6 +72,8 @@ export async function POST(req: NextRequest) {
         organization: organization || undefined,
         position: position || undefined,
         orgLevel: orgLevel || undefined,
+        coAuthors: Array.isArray(coAuthors) && coAuthors.length > 0 ? coAuthors : undefined,
+        allowLicensing: Boolean(allowLicensing),
         // Store extra metadata in a future-proof way
         status: 'pending',     // ← awaiting admin approval
         authorId: user.id,
@@ -123,7 +107,7 @@ export async function PATCH(req: NextRequest) {
     const user = token ? await verifyToken(token) : null;
     if (!user) return NextResponse.json({ error: 'Ikke logget inn.' }, { status: 401 });
 
-    const { id, title, content, category, subtitle, image_url, regions, status, organization, position, orgLevel } = await req.json();
+    const { id, title, content, category, subtitle, image_url, regions, status, organization, position, orgLevel, coAuthors, allowLicensing } = await req.json();
     if (!id) return NextResponse.json({ error: 'id required' }, { status: 400 });
 
     try {
@@ -137,7 +121,7 @@ export async function PATCH(req: NextRequest) {
 
         const updates: Record<string, any> = {};
         if (title !== undefined) updates.title = title.trim();
-        if (content !== undefined) updates.content = content.trim();
+        if (content !== undefined) updates.content = await processContentImages(content.trim());
         if (category !== undefined) updates.category = category;
         if (subtitle !== undefined) updates.subtitle = subtitle.trim();
         
@@ -149,6 +133,8 @@ export async function PATCH(req: NextRequest) {
         if (organization !== undefined) updates.organization = organization;
         if (position !== undefined) updates.position = position;
         if (orgLevel !== undefined) updates.orgLevel = orgLevel;
+        if (coAuthors !== undefined) updates.coAuthors = coAuthors;
+        if (allowLicensing !== undefined) updates.allowLicensing = allowLicensing;
         // Only admin can change status (approve/reject)
         if (status !== undefined && user.isAdmin) updates.status = status;
 

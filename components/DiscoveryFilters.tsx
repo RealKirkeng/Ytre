@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { SlidersHorizontal, ChevronDown, Check, Users, Tag, BookOpen, Link2, MapPin } from 'lucide-react';
+import { SlidersHorizontal, ChevronDown, Check, Users, Tag, BookOpen, Link2, MapPin, X } from 'lucide-react';
 import { AUDIENCES, PERSPECTIVES, READING_LEVELS, ORGANIZATION_LEVELS } from '@/lib/constants';
 import dynamic from 'next/dynamic';
 import type { GeoFeature, GeoMode } from '@/components/NorwayMap';
@@ -95,7 +95,7 @@ export function DiscoveryFilters() {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: -6, scale: 0.97 }}
                         transition={{ duration: 0.15 }}
-                        className="absolute top-full left-0 mt-2 z-50 w-[90vw] sm:w-[600px] lg:w-[700px] max-h-[80vh] overflow-y-auto rounded-3xl border border-sand-dark/30 shadow-2xl p-4 flex flex-col gap-6"
+                        className="fixed inset-x-3 top-24 sm:absolute sm:inset-x-auto sm:top-full sm:left-0 mt-2 z-50 w-auto sm:w-[600px] lg:w-[700px] max-h-[80vh] overflow-y-auto rounded-3xl border border-sand-dark/30 shadow-2xl p-4 sm:p-5 flex flex-col gap-6"
                         style={{ background: 'rgba(255,253,250,0.98)', backdropFilter: 'blur(20px)' }}
                     >
                         {/* Header */}
@@ -104,23 +104,32 @@ export function DiscoveryFilters() {
                                 <SlidersHorizontal className="w-4 h-4 text-fjord" />
                                 Avanserte filtre
                             </h3>
-                            {activeCount > 0 && (
+                            <div className="flex items-center gap-3">
+                                {activeCount > 0 && (
+                                    <button
+                                        onClick={() => {
+                                            const params = new URLSearchParams(searchParams.toString());
+                                            params.delete('audience');
+                                            params.delete('angle');
+                                            params.delete('level');
+                                            params.delete('sources');
+                                            params.delete('region');
+                                            params.delete('orgLevel');
+                                            router.push(`/?${params.toString()}`);
+                                        }}
+                                        className="text-xs font-semibold text-fjord hover:underline"
+                                    >
+                                        Fjern alle
+                                    </button>
+                                )}
                                 <button
-                                    onClick={() => {
-                                        const params = new URLSearchParams(searchParams.toString());
-                                        params.delete('audience');
-                                        params.delete('angle');
-                                        params.delete('level');
-                                        params.delete('sources');
-                                        params.delete('region');
-                                        params.delete('orgLevel');
-                                        router.push(`/?${params.toString()}`);
-                                    }}
-                                    className="text-xs font-semibold text-fjord hover:underline"
+                                    onClick={() => setOpen(false)}
+                                    className="p-1 rounded-full text-ink-300 hover:text-ink hover:bg-sand/60 transition-colors"
+                                    title="Lukk filtre"
                                 >
-                                    Fjern alle
+                                    <X className="w-4 h-4" />
                                 </button>
-                            )}
+                            </div>
                         </div>
 
                         {/* Filter Sections Layout */}

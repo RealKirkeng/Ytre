@@ -10,6 +10,15 @@ import {
 import Link from 'next/link';
 import { checkContent, ModerationResult } from '@/lib/moderation';
 import { useAuth } from '@/hooks/useAuth';
+import { ArticleInlineImage } from '@/components/ArticleInlineImage';
+
+function formatAuthors(author: string, coAuthors?: string[]): string {
+    if (!coAuthors || coAuthors.length === 0) return author;
+    const all = [author, ...coAuthors.filter(Boolean)];
+    if (all.length === 1) return all[0];
+    if (all.length === 2) return `Av ${all[0]} og ${all[1]}`;
+    return `Av ${all.slice(0, -1).join(', ')} og ${all[all.length - 1]}`;
+}
 
 const CATEGORY_LABEL: Record<string, string> = {
     school: '📚 Skole', politics: '🗳️ Politikk', mental_health: '🧠 Psykisk helse',
@@ -21,6 +30,14 @@ const CATEGORY_LABEL: Record<string, string> = {
 function renderBody(content: string) {
     if (!content) return null;
     return content.split('\n\n').filter(Boolean).map((para, i) => {
+        if (para.startsWith(':::image:')) {
+            try {
+                const data = JSON.parse(para.slice(9, -3));
+                return <ArticleInlineImage key={i} {...data} />;
+            } catch {
+                return null;
+            }
+        }
         if (para.startsWith('## ')) return <h2 key={i} className="font-display text-2xl font-bold text-ink mt-10 mb-4">{para.slice(3)}</h2>;
         if (para.startsWith('### ')) return <h3 key={i} className="font-display text-xl font-semibold text-ink mt-8 mb-3">{para.slice(4)}</h3>;
         if (para.startsWith('> ')) return <blockquote key={i} className="border-l-4 border-fjord/40 pl-5 italic text-ink-400 my-6">{para.slice(2)}</blockquote>;
@@ -169,7 +186,7 @@ export default function AdminReviewPage() {
                             <p className="text-xs text-ink-300 mt-2">E-post:</p>
                             <p className="text-sm font-semibold text-fjord break-all">{author?.email || 'Henter e-post...'}</p>
                             <a
-                                href={`mailto:${author?.email}?subject=Vedrørende ditt innlegg: ${post.title}&body=Hei ${post.authorName}, %0D%0A%0D%0AVi har sett på ditt innlegg til Paragraf100.`}
+                                href={`mailto:${author?.email}?subject=Vedrørende ditt innlegg: ${post.title}&body=Hei ${post.authorName}, %0D%0A%0D%0AVi har sett på ditt innlegg til Ytre.`}
                                 className="mt-4 w-full flex items-center justify-center gap-2 py-2 px-4 rounded-xl border border-fjord text-fjord hover:bg-fjord/5 text-xs font-bold transition-all"
                             >
                                 <BookOpen className="w-3.5 h-3.5" /> Kontakt skribent
@@ -226,7 +243,13 @@ export default function AdminReviewPage() {
 
                         <header className="mb-10">
                             <div className="flex items-center gap-2 mb-4">
-                                <span className={`badge badge-${post.category}`}>
+                                <span
+                                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold select-none bg-white/80 text-ink border border-white/80 shadow-[0_2px_10px_rgba(0,0,0,0.05),inset_0_1px_0_rgba(255,255,255,0.95)] backdrop-blur-md"
+                                    style={{
+                                        WebkitBackdropFilter: 'blur(16px) saturate(180%)',
+                                        backdropFilter: 'blur(16px) saturate(180%)',
+                                    }}
+                                >
                                     {CATEGORY_LABEL[post.category] || post.category}
                                 </span>
                             </div>
@@ -245,7 +268,7 @@ export default function AdminReviewPage() {
                                 </div>
                                 <div>
                                     <p className="text-sm font-semibold text-ink leading-none">
-                                        {post.authorName}
+                                        {formatAuthors(post.authorName || 'Anonym', post.coAuthors)}
                                         {post.organization && (
                                             <span className="text-fjord ml-1.5 font-bold italic opacity-85">
                                                 · {post.position && `${post.position}, `}{post.organization}

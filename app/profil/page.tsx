@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, useCallback, useRef, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, PenLine, Check, X, Loader2, Clock, Eye, Menu, MessageCircle, User } from 'lucide-react';
 import Link from 'next/link';
@@ -15,6 +15,7 @@ interface Post {
     subtitle?: string;
     content: string;
     category: string;
+    image_url?: string;
     status: 'pending' | 'published' | 'rejected' | 'draft';
     createdAt: string;
     updatedAt?: string;
@@ -52,13 +53,24 @@ const THEMES = [
     { id: 'pride', label: 'Stolt', color: 'bg-gradient-to-r from-red-500 via-yellow-500 to-blue-500' },
 ];
 
-export default function ProfilePage() {
+function ProfilePageContent() {
     const { user, loading: authLoading } = useAuth();
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const queryTab = searchParams.get('tab');
     const [posts, setPosts] = useState<Post[]>([]);
     const [myComments, setMyComments] = useState<Comment[]>([]);
     const [loading, setLoading] = useState(true);
-    const [activeTab, setActiveTab] = useState<'posts' | 'comments' | 'settings'>('posts');
+    const [activeTab, setActiveTab] = useState<'posts' | 'comments' | 'settings'>(
+        queryTab === 'settings' ? 'settings' : (queryTab === 'comments' ? 'comments' : 'posts')
+    );
+
+    useEffect(() => {
+        const tab = searchParams.get('tab');
+        if (tab === 'settings' || tab === 'comments' || tab === 'posts') {
+            setActiveTab(tab);
+        }
+    }, [searchParams]);
     const [editId, setEditId] = useState<string | null>(null);
     const [editData, setEditData] = useState({ title: '', subtitle: '', content: '', category: '' });
     const [saving, setSaving] = useState(false);
@@ -183,55 +195,74 @@ export default function ProfilePage() {
                 </button>
 
                 {/* Profile header */}
-                <div className="bg-white rounded-3xl border border-sand-dark/40 p-6 mb-8 flex items-center gap-5"
+                <div className="bg-white rounded-3xl border border-sand-dark/40 p-5 sm:p-6 mb-8"
                     style={{ boxShadow: '0 2px 20px rgba(26,22,18,0.07)' }}>
 
-                    <div className="relative group shrink-0">
-                        {user.avatarUrl ? (
-                            <img src={user.avatarUrl} alt={user.name}
-                                className="w-16 h-16 rounded-2xl object-cover border border-sand-dark/40" />
-                        ) : (
-                            <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-white text-2xl font-black shadow-sm"
-                                style={{ background: 'var(--gradient-main, linear-gradient(135deg,#5B89A8,#A87B8E))' }}>
-                                {user.name[0].toUpperCase()}
+                    <div className="flex items-center gap-4 sm:gap-5">
+                        <div className="relative group shrink-0">
+                            {user.avatarUrl ? (
+                                <img src={user.avatarUrl} alt={user.name}
+                                    className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl object-cover border border-sand-dark/40" />
+                            ) : (
+                                <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center text-white text-xl sm:text-2xl font-black shadow-sm"
+                                    style={{ background: 'var(--gradient-main, linear-gradient(135deg,#5B89A8,#A87B8E))' }}>
+                                    {user.name[0].toUpperCase()}
+                                </div>
+                            )}
+                            <button onClick={() => fileRef.current?.click()}
+                                className="absolute -bottom-1 -right-1 p-1.5 rounded-lg bg-white border border-sand-dark/50 shadow-sm text-ink-400 hover:text-fjord transition-colors">
+                                <PenLine className="w-3.5 h-3.5" />
+                            </button>
+                            <input type="file" ref={fileRef} className="hidden" accept="image/*" onChange={handleAvatarFile} />
+                        </div>
+
+                        <div className="flex-1 min-w-0">
+                            <h1 className="font-display text-xl sm:text-2xl font-bold text-ink truncate">{user.name}</h1>
+                            <p className="text-xs sm:text-sm text-ink-400 mt-0.5 truncate">{user.email}</p>
+                            {user.isAdmin && (
+                                <span className="mt-1.5 inline-block text-[10px] sm:text-xs bg-red-500 text-white px-2 py-0.5 rounded-full font-semibold">ADMIN</span>
+                            )}
+                        </div>
+
+                        {/* Desktop Stats */}
+                        <div className="hidden sm:flex gap-6 text-center shrink-0">
+                            <div>
+                                <p className="text-2xl font-black text-ink">{published}</p>
+                                <p className="text-xs text-ink-300 mt-0.5">Publisert</p>
                             </div>
-                        )}
-                        <button onClick={() => fileRef.current?.click()}
-                            className="absolute -bottom-1 -right-1 p-1.5 rounded-lg bg-white border border-sand-dark/50 shadow-sm text-ink-400 hover:text-fjord transition-colors">
-                            <PenLine className="w-3.5 h-3.5" />
-                        </button>
-                        <input type="file" ref={fileRef} className="hidden" accept="image/*" onChange={handleAvatarFile} />
+                            <div>
+                                <p className="text-2xl font-black text-amber-500">{pending}</p>
+                                <p className="text-xs text-ink-300 mt-0.5">Venter</p>
+                            </div>
+                            <div>
+                                <p className="text-2xl font-black text-ink">{posts.reduce((s, p) => s + (p.view_count || 0), 0)}</p>
+                                <p className="text-xs text-ink-300 mt-0.5">Visninger</p>
+                            </div>
+                        </div>
                     </div>
 
-                    <div className="flex-1 min-w-0">
-                        <h1 className="font-display text-2xl font-bold text-ink">{user.name}</h1>
-                        <p className="text-sm text-ink-400 mt-0.5">{user.email}</p>
-                        {user.isAdmin && (
-                            <span className="mt-1.5 inline-block text-xs bg-red-500 text-white px-2 py-0.5 rounded-full font-semibold">ADMIN</span>
-                        )}
-                    </div>
-                    {/* Stats */}
-                    <div className="hidden sm:flex gap-6 text-center shrink-0">
+                    {/* Mobile Stats Row */}
+                    <div className="flex sm:hidden justify-around pt-3.5 border-t border-sand-dark/20 mt-4 text-center">
                         <div>
-                            <p className="text-2xl font-black text-ink">{published}</p>
-                            <p className="text-xs text-ink-300 mt-0.5">Publisert</p>
+                            <p className="text-lg font-black text-ink">{published}</p>
+                            <p className="text-[10px] text-ink-300">Publisert</p>
                         </div>
                         <div>
-                            <p className="text-2xl font-black text-amber-500">{pending}</p>
-                            <p className="text-xs text-ink-300 mt-0.5">Venter</p>
+                            <p className="text-lg font-black text-amber-500">{pending}</p>
+                            <p className="text-[10px] text-ink-300">Venter</p>
                         </div>
                         <div>
-                            <p className="text-2xl font-black text-ink">{posts.reduce((s, p) => s + (p.view_count || 0), 0)}</p>
-                            <p className="text-xs text-ink-300 mt-0.5">Visninger</p>
+                            <p className="text-lg font-black text-ink">{posts.reduce((s, p) => s + (p.view_count || 0), 0)}</p>
+                            <p className="text-[10px] text-ink-300">Visninger</p>
                         </div>
                     </div>
                 </div>
 
                 {/* Tabs */}
-                <div className="flex border-b border-sand-dark/30 mb-8 gap-8">
+                <div className="flex border-b border-sand-dark/30 mb-8 gap-4 sm:gap-8 overflow-x-auto no-scrollbar">
                     {(['posts', 'comments', 'settings'] as const).map(t => (
                         <button key={t} onClick={() => setActiveTab(t)}
-                            className={`pb-4 text-sm font-bold transition-all relative ${activeTab === t ? 'text-fjord' : 'text-ink-300 hover:text-ink-500'}`}>
+                            className={`pb-3 sm:pb-4 text-xs sm:text-sm font-bold transition-all relative shrink-0 ${activeTab === t ? 'text-fjord' : 'text-ink-300 hover:text-ink-500'}`}>
                             {t === 'posts' ? 'Mine innlegg' : t === 'comments' ? 'Mine kommentarer' : 'Innstillinger'}
                             {activeTab === t && <motion.div layoutId="tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-fjord" />}
                         </button>
@@ -285,14 +316,32 @@ export default function ProfilePage() {
                                                 </div>
                                             ) : (
                                                 <div className="p-4 flex items-center justify-between gap-4">
-                                                    <div className="min-w-0">
-                                                        <div className="flex items-center gap-2 mb-1">
-                                                            <span className={`inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${sc.color}`}>
-                                                                <StatusIcon className="w-2.5 h-2.5" /> {sc.label}
-                                                            </span>
-                                                            <span className="text-[10px] text-ink-300">{new Date(p.createdAt).toLocaleDateString('nb-NO')}</span>
+                                                    <div className="flex items-center gap-3.5 min-w-0">
+                                                        <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl overflow-hidden shrink-0 border border-sand-dark/30 bg-sand/60">
+                                                            {p.image_url ? (
+                                                                <img
+                                                                    src={p.image_url}
+                                                                    alt=""
+                                                                    className="w-full h-full object-cover"
+                                                                />
+                                                            ) : (
+                                                                <div className="w-full h-full flex items-center justify-center text-fjord font-bold text-lg bg-fjord/10">
+                                                                    {user.name ? user.name[0].toUpperCase() : 'Y'}
+                                                                </div>
+                                                            )}
                                                         </div>
-                                                        <h3 className="font-bold text-ink text-sm sm:text-base truncate">{p.title}</h3>
+                                                        <div className="min-w-0">
+                                                            <div className="flex items-center gap-2 mb-1">
+                                                                <span className={`inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${sc.color}`}>
+                                                                    <StatusIcon className="w-2.5 h-2.5" /> {sc.label}
+                                                                </span>
+                                                                <span className="text-[10px] text-ink-300">{new Date(p.createdAt).toLocaleDateString('nb-NO')}</span>
+                                                            </div>
+                                                            <h3 className="font-bold text-ink text-sm sm:text-base truncate">{p.title}</h3>
+                                                            {p.subtitle && (
+                                                                <p className="text-xs text-ink-300 truncate hidden sm:block mt-0.5">{p.subtitle}</p>
+                                                            )}
+                                                        </div>
                                                     </div>
                                                     <div className="flex items-center gap-1 shrink-0">
                                                         <button onClick={() => startEdit(p)} className="p-2 rounded-lg hover:bg-sand transition-colors"><PenLine className="w-4 h-4 text-ink-300" /></button>
@@ -407,5 +456,13 @@ export default function ProfilePage() {
                 )}
             </AnimatePresence>
         </div>
+    );
+}
+
+export default function ProfilePage() {
+    return (
+        <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><Loader2 className="w-6 h-6 animate-spin text-ink-300" /></div>}>
+            <ProfilePageContent />
+        </Suspense>
     );
 }

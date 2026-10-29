@@ -39,6 +39,7 @@ export interface SessionUser {
     id: string;
     email: string;
     name: string;
+    avatarUrl?: string;
     theme?: string;
     font?: 'default' | 'serif' | 'opensans' | 'hyperlegible' | 'comic';
     isAdmin: boolean;
@@ -155,6 +156,7 @@ export async function signToken(user: LocalUser): Promise<string> {
         id: user.id,
         email: user.email,
         name: user.name,
+        avatarUrl: user.avatarUrl,
         theme: user.theme,
         font: user.font,
         isAdmin: user.isAdmin

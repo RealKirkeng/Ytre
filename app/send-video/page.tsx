@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Navbar } from '@/components/Navbar';
 import { PenLine, Loader2, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -60,8 +59,6 @@ export default function SendVideoPage() {
 
     return (
         <main className="min-h-screen bg-sand text-ink relative">
-            <Navbar />
-
             <div className="relative z-10 w-full max-w-xl mx-auto px-4 py-12 pt-24">
                 <Link href="/videoer" className="inline-flex items-center gap-1.5 text-sm text-ink-400 hover:text-ink mb-6 transition-colors">
                     <ArrowLeft className="w-4 h-4" /> Tilbake til videostrøm

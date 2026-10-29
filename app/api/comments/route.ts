@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyToken } from '@/lib/local-auth.server';
+import { verifyToken, getAllUsers } from '@/lib/local-auth.server';
 import { getComments, createComment, getCommentsByAuthor } from '@/lib/local-store.server';
-import fs from 'fs';
-import path from 'path';
 
 export const runtime = 'nodejs';
 
@@ -18,19 +16,14 @@ export async function GET(req: NextRequest) {
     if (!postId) return NextResponse.json({ error: 'postId required' }, { status: 400 });
     const comments = getComments(postId);
 
-    // Join with user data
-    let users: any[] = [];
-    try {
-        users = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'users.json'), 'utf-8'));
-    } catch { }
+    // Join with cached user data
+    const users = getAllUsers();
+    const userMap = new Map<string, string | undefined>(users.map(u => [u.id, u.avatarUrl]));
 
-    const enriched = comments.map(c => {
-        const author = users.find(u => u.id === c.authorId);
-        return {
-            ...c,
-            authorAvatar: author?.avatarUrl
-        };
-    });
+    const enriched = comments.map(c => ({
+        ...c,
+        authorAvatar: userMap.get(c.authorId)
+    }));
 
     return NextResponse.json(enriched);
 }

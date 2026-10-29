@@ -17,7 +17,7 @@ function getFeatureBounds(f) {
     return [[minLon, minLat], [maxLon, maxLat]];
 }
 
-const rawData = JSON.parse(readFileSync('public/norway-fylker.geojson', 'utf8'));
+const rawData = JSON.parse(readFileSync('scripts/data/norway-fylker.geojson', 'utf8'));
 rawData.features.forEach((f, i) => {
     const id = f.id ?? f.properties?.fylkesnummer ?? 'NO-ID';
     const name = f.properties?.fylkesnavn ?? f.properties?.name ?? 'NO-NAME';

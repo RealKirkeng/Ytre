@@ -1,7 +1,7 @@
 // scripts/deep-diag.mjs
 import { readFileSync } from 'fs';
 
-const rawData = JSON.parse(readFileSync('public/norway-fylker.geojson', 'utf8'));
+const rawData = JSON.parse(readFileSync('scripts/data/norway-fylker.geojson', 'utf8'));
 rawData.features.forEach((f, i) => {
     let count = 0;
     let outliers = [];

@@ -82,6 +82,8 @@ export function HotArticlesCarousel({ posts }: { posts: Post[] }) {
                                         <img
                                             src={post.image_url}
                                             alt=""
+                                            loading="lazy"
+                                            decoding="async"
                                             className="absolute inset-0 w-full h-full object-cover opacity-25 group-hover/card:scale-105 group-hover/card:opacity-40 transition-all duration-700"
                                         />
                                         <div className="absolute inset-0 bg-gradient-to-b from-white/95 via-white/80 to-white/40 z-0" />
@@ -98,6 +100,8 @@ export function HotArticlesCarousel({ posts }: { posts: Post[] }) {
                                                     src={post.profiles.avatar_url}
                                                     alt={post.profiles.username}
                                                     width="28" height="28"
+                                                    loading="lazy"
+                                                    decoding="async"
                                                     className="w-7 h-7 rounded-full bg-sand-dark object-cover"
                                                 />
                                             ) : (

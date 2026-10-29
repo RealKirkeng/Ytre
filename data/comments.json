@@ -67,5 +67,34 @@
     "parentId": "fb8099d0-4861-48e1-a31d-03b713f03380",
     "authorId": "c2caf46f-900d-49a9-9ef4-065cad3e5b05",
     "authorName": "Test Bruker"
+  },
+  {
+    "id": "21c1fcdd-924a-41e8-96cd-cdb6ae4dba66",
+    "createdAt": "2026-10-29T14:57:56.796Z",
+    "reactions": {},
+    "postId": "2",
+    "content": "Fytti",
+    "authorId": "c2caf46f-900d-49a9-9ef4-065cad3e5b05",
+    "authorName": "Test Bruker"
+  },
+  {
+    "id": "593288d6-44e4-4368-b77a-bb4736e56ff8",
+    "createdAt": "2026-10-29T15:40:30.460Z",
+    "reactions": {},
+    "postId": "b7da6efb-2fa9-4a94-9c47-42e3610c0db0",
+    "content": "Jille",
+    "parentId": "1dc7bf6d-d1c2-4114-88f6-5e7b2c89e05d",
+    "authorId": "c2caf46f-900d-49a9-9ef4-065cad3e5b05",
+    "authorName": "Test Bruker"
+  },
+  {
+    "id": "462fee85-6966-44d7-aabc-4895f8a6dcc7",
+    "createdAt": "2026-10-29T15:40:34.391Z",
+    "reactions": {},
+    "postId": "b7da6efb-2fa9-4a94-9c47-42e3610c0db0",
+    "content": "Daym",
+    "parentId": "fb8099d0-4861-48e1-a31d-03b713f03380",
+    "authorId": "c2caf46f-900d-49a9-9ef4-065cad3e5b05",
+    "authorName": "Test Bruker"
   }
 ]

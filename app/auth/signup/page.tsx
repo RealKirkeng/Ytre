@@ -51,21 +51,21 @@ export default function SignupPage() {
     };
 
     return (
-        <div className="min-h-[80vh] flex items-center justify-center px-4 py-16">
+        <div className="min-h-[80vh] flex items-center justify-center px-4 pt-24 sm:pt-28 pb-16">
             <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }} className="w-full max-w-md">
 
                 <div className="text-center mb-8">
                     <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-white text-2xl font-display font-bold mx-auto mb-4"
-                        style={{ background: 'linear-gradient(135deg,#5B89A8,#A87B8E)', boxShadow: '0 8px 24px rgba(91,137,168,0.25)' }}>§</div>
+                        style={{ background: 'linear-gradient(135deg,#5B89A8,#A87B8E)', boxShadow: '0 8px 24px rgba(91,137,168,0.25)' }}>Y</div>
                     <h1 className="font-display text-3xl font-bold text-ink mb-1.5">Bli en stemme</h1>
-                    <p className="text-ink-400 text-sm">Opprett en konto på Paragraf100 — alltid gratis</p>
+                    <p className="text-ink-400 text-sm">Opprett en konto på Ytre — alltid gratis</p>
                 </div>
 
-                <div className="bg-white rounded-3xl border border-sand-dark/40 p-8"
+                <div className="bg-white rounded-2xl sm:rounded-3xl border border-sand-dark/40 p-6 sm:p-8"
                     style={{ boxShadow: '0 4px 24px rgba(26,22,18,0.07)' }}>
                     <p className="text-center text-xs text-ink-300 mb-6 px-4">
-                        Vennligst oppgi ditt virkelige navn. Vi krever at alle stemmer på Paragraf100 publiserer under fullt navn for å fremme seriøs debatt.
+                        Vennligst oppgi ditt virkelige navn. Vi krever at alle stemmer på Ytre publiserer under fullt navn for å fremme seriøs debatt.
                     </p>
 
                     <form onSubmit={handleSignup} className="space-y-4">

@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Inter, Outfit, Open_Sans, Atkinson_Hyperlegible, Comic_Neue } from 'next/font/google';
 import './globals.css';
 import { Navbar } from '@/components/Navbar';
@@ -14,24 +14,24 @@ const atkinson = Atkinson_Hyperlegible({ weight: ['400', '700'], subsets: ['lati
 const comicNeue = Comic_Neue({ weight: ['400', '700'], subsets: ['latin'], variable: '--font-comic', display: 'swap' });
 
 export const metadata: Metadata = {
-    metadataBase: new URL('https://paragraf100.no'),
+    metadataBase: new URL('https://ytre.no'),
     title: {
-        template: '%s | Paragraf100',
-        default: 'Paragraf100 — Din stemme, din debatt',
+        template: '%s | Ytre',
+        default: 'Ytre — Din stemme, din debatt',
     },
     description: 'Norges nye plattform for unge stemmer under 30. Publiser kronikker, delta i samfunnsdebatten og del dine perspektiver trygt og fritt.',
-    keywords: ['debatt', 'ytringsfrihet', 'unge meninger', 'Norge', 'kronikk', 'samfunnsdebatt', 'politikk', 'meninger', 'Paragraf100'],
+    keywords: ['debatt', 'ytringsfrihet', 'unge meninger', 'Norge', 'kronikk', 'samfunnsdebatt', 'politikk', 'meninger', 'Ytre'],
     openGraph: {
         type: 'website',
         locale: 'nb_NO',
-        url: 'https://paragraf100.no',
-        siteName: 'Paragraf100',
-        title: 'Paragraf100 — Din stemme, din debatt',
+        url: 'https://ytre.no',
+        siteName: 'Ytre',
+        title: 'Ytre — Din stemme, din debatt',
         description: 'Norges nye debattplattform for unge stemmer. Les, skriv, engasjer deg.',
     },
     twitter: {
         card: 'summary_large_image',
-        title: 'Paragraf100 — Din stemme, din debatt',
+        title: 'Ytre — Din stemme, din debatt',
         description: 'Bli med i Norges nye debattplattform for unge.',
     },
     robots: {
@@ -45,6 +45,17 @@ export const metadata: Metadata = {
             'max-snippet': -1,
         },
     },
+};
+
+export const viewport: Viewport = {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 5,
+    viewportFit: 'cover',
+    themeColor: [
+        { media: '(prefers-color-scheme: light)', color: '#FDFBFA' },
+        { media: '(prefers-color-scheme: dark)', color: '#12100E' },
+    ],
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
@@ -70,7 +81,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                         <Suspense>
                             <Navbar />
                         </Suspense>
-                        <main><PageTransition key={Date.now().toString()}>{children}</PageTransition></main>
+                        <main><PageTransition>{children}</PageTransition></main>
                     </div>
                 </Providers>
             </body>

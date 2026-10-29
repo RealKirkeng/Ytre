@@ -1,14 +1,14 @@
-import { getPosts, getSettings } from '@/lib/local-store.server';
+import { getEnrichedPosts, getSettings } from '@/lib/local-store.server';
 import { MasonryGrid } from '@/components/MasonryGrid';
 import type { Post } from '@/components/ArticleCard';
 import Link from 'next/link';
-import { PenLine, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import { FluidHero } from '@/components/FluidHero';
 import { DiscoveryFilters } from '@/components/DiscoveryFilters';
 import { SortFilter } from '@/components/SortFilter';
 import { HomepageModulesCarousel } from '@/components/HomepageModulesCarousel';
-import fs from 'fs';
-import path from 'path';
+
+
 
 interface HomePageProps {
     searchParams: Promise<{ [key: string]: string | undefined }>;
@@ -39,81 +39,49 @@ async function getLocalPosts(
     query?: string,
     sort?: string
 ): Promise<Post[]> {
-    const local = getPosts(category, region);
+    let posts: Post[] = getEnrichedPosts({ category, region });
 
-    // Join with user data for avatars
-    let users: any[] = [];
-    try {
-        users = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'users.json'), 'utf-8'));
-    } catch (e) { }
+    const q = query ? query.toLowerCase() : null;
 
-    // Fetch comment counts
-    let comments: any[] = [];
-    try {
-        comments = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'comments.json'), 'utf-8'));
-    } catch (e) { }
-
-    let mapped: Post[] = local.map(p => {
-        const author = users.find(u => u.id === p.authorId);
-        const postComments = comments.filter(c => c.postId === p.id);
-        return {
-            id: p.id, title: p.title, slug: p.slug, content: p.content,
-            category: p.category, created_at: p.createdAt,
-            flag_count: p.flag_count, view_count: p.view_count,
-            is_featured: p.is_featured, image_url: p.image_url,
-            profiles: {
-                username: p.authorName,
-                avatar_url: author?.avatarUrl
-            },
-            comment_count: postComments.length,
-            regions: p.regions ? p.regions.map(r => ({ level: r.level, id: r.id, name: r.name })) : undefined,
-            audience: p.audience,
-            angle: p.angle,
-            readingLevel: p.readingLevel,
-            sources: p.sources,
-            organization: p.organization,
-            position: p.position,
-            orgLevel: p.orgLevel
-        };
-    });
-
-    if (audience) mapped = mapped.filter(p => p.audience?.includes(audience));
-    if (angle) mapped = mapped.filter(p => p.angle === angle);
-    if (level) mapped = mapped.filter(p => p.readingLevel === level);
-    if (orgLevel) mapped = mapped.filter(p => p.orgLevel === orgLevel);
-    if (hasSources) mapped = mapped.filter(p => p.sources && p.sources.length > 0);
-
-    if (query) {
-        const q = query.toLowerCase();
-        mapped = mapped.filter(p =>
-            p.title.toLowerCase().includes(q) ||
-            p.content.toLowerCase().includes(q) ||
-            p.profiles?.username.toLowerCase().includes(q)
-        );
+    if (audience || angle || level || orgLevel || hasSources || q) {
+        posts = posts.filter(p => {
+            if (audience && !p.audience?.includes(audience)) return false;
+            if (angle && p.angle !== angle) return false;
+            if (level && p.readingLevel !== level) return false;
+            if (orgLevel && p.orgLevel !== orgLevel) return false;
+            if (hasSources && (!p.sources || p.sources.length === 0)) return false;
+            if (q) {
+                const matchTitle = p.title.toLowerCase().includes(q);
+                const matchContent = p.content.toLowerCase().includes(q);
+                const matchUser = p.profiles?.username?.toLowerCase().includes(q);
+                if (!matchTitle && !matchContent && !matchUser) return false;
+            }
+            return true;
+        });
     }
 
-    let filteredMock = MOCK_POSTS;
-    if (category) filteredMock = filteredMock.filter(p => p.category === category);
-    if (region) filteredMock = filteredMock.filter(p => p.regions?.some(r => r.id === region));
-    if (query) {
-        const q = query.toLowerCase();
-        filteredMock = filteredMock.filter(p =>
-            p.title.toLowerCase().includes(q) ||
-            p.content.toLowerCase().includes(q) ||
-            p.profiles?.username.toLowerCase().includes(q)
-        );
+    let filteredMock: Post[] = [];
+    if (!audience && !angle && !level && !orgLevel && !hasSources) {
+        filteredMock = MOCK_POSTS.filter(p => {
+            if (category && p.category !== category) return false;
+            if (region && !p.regions?.some(r => r.id === region)) return false;
+            if (q) {
+                const matchTitle = p.title.toLowerCase().includes(q);
+                const matchContent = p.content.toLowerCase().includes(q);
+                const matchUser = p.profiles?.username?.toLowerCase().includes(q);
+                if (!matchTitle && !matchContent && !matchUser) return false;
+            }
+            return true;
+        });
     }
-    if (audience || angle || level || orgLevel || hasSources) filteredMock = [];
 
-    const combined = [...mapped, ...filteredMock];
+    const combined = [...posts, ...filteredMock];
 
-    // Final sorting
     if (sort === 'views') {
         combined.sort((a, b) => b.view_count - a.view_count);
     } else if (sort === 'comments') {
         combined.sort((a, b) => (b.comment_count ?? 0) - (a.comment_count ?? 0));
     } else {
-        // Latest (default)
         combined.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
     }
 
@@ -152,17 +120,17 @@ export default async function HomePage({ searchParams }: HomePageProps) {
             </div>
 
             {/* Overlapping Content Panel */}
-            <div className="relative z-10 bg-sand rounded-t-[3rem] shadow-[0_-8px_30px_rgba(0,0,0,0.04)] sm:rounded-t-[4rem] min-h-screen pt-12 pb-24 -mt-[15vh]">
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-16 h-1.5 bg-sand-dark/20 rounded-full mt-4" />
+            <div className="relative z-10 bg-sand rounded-t-[2.5rem] shadow-[0_-8px_30px_rgba(0,0,0,0.04)] sm:rounded-t-[4rem] min-h-screen pt-8 sm:pt-12 pb-16 sm:pb-24 -mt-[12vh] sm:-mt-[15vh]">
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-12 sm:w-16 h-1.5 bg-sand-dark/20 rounded-full mt-3 sm:mt-4" />
 
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-2 sm:mt-4">
                     {settings?.isVideoFeatureEnabled && (
-                        <div className="flex justify-center mb-8">
+                        <div className="flex justify-center mb-6 sm:mb-8">
                             <div className="inline-flex p-1 bg-sand-dark/30 rounded-2xl border border-sand-dark/10">
-                                <Link href="/" className="px-6 py-2.5 rounded-xl text-sm font-bold bg-white text-ink shadow-sm pointer-events-none">
+                                <Link href="/" className="px-5 sm:px-6 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-white text-ink shadow-sm pointer-events-none">
                                     📝 Artikler
                                 </Link>
-                                <Link href="/videoer" className="px-6 py-2.5 rounded-xl text-sm font-bold text-ink-500 hover:text-ink transition-colors flex items-center">
+                                <Link href="/videoer" className="px-5 sm:px-6 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold text-ink-500 hover:text-ink transition-colors flex items-center">
                                     🎬 Videoer <span className="ml-1.5 text-[10px] bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded-full uppercase tracking-wider">Beta</span>
                                 </Link>
                             </div>
@@ -176,15 +144,16 @@ export default async function HomePage({ searchParams }: HomePageProps) {
                         </div>
                     )}
 
-                    <div className="flex flex-wrap gap-2 items-center py-2">
-                        <div className="flex flex-wrap gap-1 items-center">
+                    <div className="py-2 space-y-3 sm:space-y-0 sm:flex sm:flex-wrap sm:gap-3 sm:items-center">
+                        {/* Scrollable category pills on mobile, wrap on desktop */}
+                        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar scroll-smooth -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap">
                             {CATEGORIES.map(cat => {
                                 const active = category === cat.id;
                                 return (
                                     <Link
                                         key={cat.id}
                                         href={cat.id ? `/?category=${cat.id}` : '/'}
-                                        className={`flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-semibold transition-all duration-300 border ${active
+                                        className={`flex-shrink-0 px-3.5 sm:px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold transition-all duration-300 border ${active
                                             ? 'text-white border-transparent shadow-md'
                                             : 'border-sand-dark/20 text-ink-400 hover:text-ink hover:bg-white/80 hover:border-fjord/30 hover:shadow-soft hover:-translate-y-0.5'
                                             }`}
@@ -196,16 +165,17 @@ export default async function HomePage({ searchParams }: HomePageProps) {
                             })}
                         </div>
 
-                        <span className="h-5 w-px bg-sand-dark/40 mx-2" />
+                        <span className="hidden sm:block h-5 w-px bg-sand-dark/40 mx-1" />
 
-                        <div className="flex flex-wrap gap-2 items-center">
+                        {/* Filters & sort row */}
+                        <div className="flex items-center justify-between sm:justify-start gap-2 pt-1 sm:pt-0">
                             <DiscoveryFilters />
                             <SortFilter />
 
                             {(category || region || query || audience || angle || level || orgLevel) && (
                                 <Link
                                     href="/"
-                                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-fjord/30 bg-fjord/5 text-fjord hover:bg-fjord hover:text-white text-xs font-bold transition-all"
+                                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-fjord/30 bg-fjord/5 text-fjord hover:bg-fjord hover:text-white text-xs font-bold transition-all ml-auto sm:ml-0"
                                     title="Nullstill alle filtre og søk"
                                 >
                                     <X className="w-3.5 h-3.5" />
@@ -216,7 +186,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
                     </div>
                 </div>
 
-                <section className="px-4 sm:px-6 lg:px-8 pt-8 pb-16 max-w-7xl mx-auto">
+                <section className="px-3 sm:px-6 lg:px-8 pt-6 sm:pt-8 pb-16 max-w-7xl mx-auto">
                     {posts.length === 0 ? (
                         <div className="text-center py-24 text-ink-300">
                             <p className="text-5xl mb-4">📭</p>
@@ -232,14 +202,15 @@ export default async function HomePage({ searchParams }: HomePageProps) {
                     <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
                         <div className="flex items-center gap-2">
                             <div className="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold"
-                                style={{ background: 'linear-gradient(135deg,#5B89A8,#A87B8E)' }}>§</div>
-                            <span className="font-display font-bold text-ink text-sm">Paragraf100</span>
+                                style={{ background: 'linear-gradient(135deg,#5B89A8,#A87B8E)' }}>Y</div>
+                            <span className="font-display font-bold text-ink text-sm">Ytre</span>
                         </div>
                         <p className="text-ink-300 text-sm">© 2026 · Fri ytring for unge norske stemmer</p>
-                        <div className="flex items-center gap-5 text-xs text-ink-300">
+                        <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-5 text-xs text-ink-300">
                             <Link href="/kontakt" className="hover:text-ink transition-colors">Kontakt</Link>
                             <Link href="/personvern" className="hover:text-ink transition-colors">Personvern</Link>
                             <Link href="/vilkar" className="hover:text-ink transition-colors">Vilkår</Link>
+                            <Link href="/juridisk" className="hover:text-ink transition-colors">Juridisk</Link>
                         </div>
                     </div>
                 </footer>

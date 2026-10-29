@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { PenLine, X, Check, Loader2, ArrowLeft, Clock, Eye } from 'lucide-react';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
+import { AdminReportsModule, ReportItem } from '@/components/admin/AdminReportsModule';
 
 const CATEGORY_LABEL: Record<string, string> = {
     school: '📚 Skole', politics: '🗳️ Politikk', mental_health: '🧠 Psykisk helse',
@@ -18,7 +19,7 @@ interface Post {
     view_count: number; status: string;
 }
 
-type Tab = 'pending' | 'published' | 'rejected' | 'settings';
+type Tab = 'pending' | 'published' | 'rejected' | 'reports' | 'settings';
 
 export default function AdminPage() {
     const { user, loading: authLoading } = useAuth();
@@ -26,6 +27,7 @@ export default function AdminPage() {
     const [tab, setTab] = useState<Tab>('pending');
     const [posts, setPosts] = useState<Post[]>([]);
     const [videos, setVideos] = useState<any[]>([]);
+    const [reports, setReports] = useState<ReportItem[]>([]);
     const [settings, setSettings] = useState<{ isVideoFeatureEnabled: boolean } | null>(null);
     const [loading, setLoading] = useState(true);
     const [editId, setEditId] = useState<string | null>(null);
@@ -39,14 +41,16 @@ export default function AdminPage() {
 
     const fetchPosts = async () => {
         setLoading(true);
-        const [postsRes, settingsRes, videosRes] = await Promise.all([
-            fetch('/api/posts/admin'),
-            fetch('/api/settings'),
-            fetch('/api/videos/admin')
+        const [postsRes, settingsRes, videosRes, reportsRes] = await Promise.all([
+            fetch('/api/posts/admin', { cache: 'no-store' }),
+            fetch('/api/settings', { cache: 'no-store' }),
+            fetch('/api/videos/admin', { cache: 'no-store' }),
+            fetch('/api/reports', { cache: 'no-store' }),
         ]);
         if (postsRes.ok) { const data = await postsRes.json(); setPosts(Array.isArray(data) ? data : []); }
         if (settingsRes.ok) { const data = await settingsRes.json(); setSettings(data); }
         if (videosRes.ok) { const data = await videosRes.json(); setVideos(Array.isArray(data) ? data : []); }
+        if (reportsRes.ok) { const data = await reportsRes.json(); setReports(Array.isArray(data) ? data : []); }
         setLoading(false);
     };
 
@@ -117,6 +121,7 @@ export default function AdminPage() {
     const pending = currentItems.filter(p => p.status === 'pending');
     const published = currentItems.filter(p => p.status === 'published');
     const rejected = currentItems.filter(p => p.status === 'rejected');
+    const pendingReports = reports.filter(r => r.status === 'pending');
     const shown = tab === 'pending' ? pending : tab === 'published' ? published : rejected;
 
     return (
@@ -148,9 +153,9 @@ export default function AdminPage() {
                 )}
 
                 {/* Tabs */}
-                <div className="flex gap-2 mb-6">
+                <div className="flex flex-wrap gap-2 mb-6">
                     <button onClick={() => setTab('pending')}
-                        className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all ${tab === 'pending' ? 'text-white shadow-sm' : 'bg-white border border-sand-dark/40 text-ink-400 hover:text-ink'}`}
+                        className={`flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl text-sm font-semibold transition-all ${tab === 'pending' ? 'text-white shadow-sm' : 'bg-white border border-sand-dark/40 text-ink-400 hover:text-ink'}`}
                         style={tab === 'pending' ? { background: 'linear-gradient(135deg,#5B89A8,#A87B8E)' } : {}}>
                         <PenLine className="w-3.5 h-3.5" />
                         Til godkjenning
@@ -159,21 +164,30 @@ export default function AdminPage() {
                         )}
                     </button>
                     <button onClick={() => setTab('published')}
-                        className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all ${tab === 'published' ? 'text-white shadow-sm' : 'bg-white border border-sand-dark/40 text-ink-400 hover:text-ink'}`}
+                        className={`flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl text-sm font-semibold transition-all ${tab === 'published' ? 'text-white shadow-sm' : 'bg-white border border-sand-dark/40 text-ink-400 hover:text-ink'}`}
                         style={tab === 'published' ? { background: 'linear-gradient(135deg,#5B89A8,#A87B8E)' } : {}}>
                         <Check className="w-5 h-5" />
                         Publiserte
                         <span className={`text-xs rounded-full px-1.5 py-0.5 font-bold leading-none ${tab === 'published' ? 'bg-white/25 text-white' : 'bg-sand-dark/60 text-ink-400'}`}>{published.length}</span>
                     </button>
                     <button onClick={() => setTab('rejected')}
-                        className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all ${tab === 'rejected' ? 'text-white shadow-sm' : 'bg-white border border-sand-dark/40 text-ink-400 hover:text-ink'}`}
+                        className={`flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl text-sm font-semibold transition-all ${tab === 'rejected' ? 'text-white shadow-sm' : 'bg-white border border-sand-dark/40 text-ink-400 hover:text-ink'}`}
                         style={tab === 'rejected' ? { background: 'linear-gradient(135deg,#5B89A8,#A87B8E)' } : {}}>
                         <X className="w-5 h-5" />
                         Avviste
                         <span className={`text-xs rounded-full px-1.5 py-0.5 font-bold leading-none ${tab === 'rejected' ? 'bg-white/25 text-white' : 'bg-red-500/20 text-red-600'}`}>{rejected.length}</span>
                     </button>
+                    <button onClick={() => setTab('reports')}
+                        className={`flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl text-sm font-semibold transition-all ${tab === 'reports' ? 'text-white shadow-sm' : 'bg-white border border-sand-dark/40 text-ink-400 hover:text-ink'}`}
+                        style={tab === 'reports' ? { background: 'linear-gradient(135deg,#DC2626,#991B1B)' } : {}}>
+                        <span className="text-base leading-none">🚩</span>
+                        Varsler & Klager
+                        {pendingReports.length > 0 && (
+                            <span className={`text-xs rounded-full px-1.5 py-0.5 font-bold leading-none ${tab === 'reports' ? 'bg-white/25 text-white' : 'bg-red-600 text-white animate-pulse'}`}>{pendingReports.length}</span>
+                        )}
+                    </button>
                     <button onClick={() => setTab('settings')}
-                        className={`ml-auto flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all ${tab === 'settings' ? 'text-white shadow-sm' : 'bg-white border border-sand-dark/40 text-ink-400 hover:text-ink'}`}
+                        className={`ml-auto flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl text-sm font-semibold transition-all ${tab === 'settings' ? 'text-white shadow-sm' : 'bg-white border border-sand-dark/40 text-ink-400 hover:text-ink'}`}
                         style={tab === 'settings' ? { background: 'linear-gradient(135deg,#5B89A8,#A87B8E)' } : {}}>
                         <span className="text-base leading-none">⚙️</span>
                         Innstillinger
@@ -219,6 +233,8 @@ export default function AdminPage() {
                             </div>
                         </div>
                     </div>
+                ) : tab === 'reports' ? (
+                    <AdminReportsModule reports={reports} onRefresh={fetchPosts} showToast={showToast} />
                 ) : shown.length === 0 ? (
                     <div className="text-center py-20 text-ink-300">
                         <p className="text-4xl mb-3">{tab === 'pending' ? '✅' : tab === 'published' ? '📭' : '🗑️'}</p>
