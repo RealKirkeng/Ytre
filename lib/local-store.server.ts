@@ -6,8 +6,7 @@
 import fs from 'fs';
 import path from 'path';
 import { getAllUsers } from './local-auth.server';
-
-const DATA_DIR = path.join(process.cwd(), 'data');
+import { getDataDir } from './data-dir.server';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 export type GeoLevel = 'global' | 'national' | 'fylke' | 'kommune';
@@ -84,7 +83,8 @@ const DEFAULT_SETTINGS: SiteSettings = {
 
 // ── File helpers ──────────────────────────────────────────────────────────────
 function ensureDir() {
-    if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+    const dir = getDataDir();
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 }
 
 function readJSON<T>(file: string, fallback: T): T {
@@ -95,14 +95,18 @@ function readJSON<T>(file: string, fallback: T): T {
 }
 
 function writeJSON<T>(file: string, data: T): void {
-    ensureDir();
-    fs.writeFileSync(file, JSON.stringify(data, null, 2), 'utf-8');
+    try {
+        ensureDir();
+        fs.writeFileSync(file, JSON.stringify(data, null, 2), 'utf-8');
+    } catch (err) {
+        console.warn(`[local-store] Warning: Could not write file ${file}:`, err);
+    }
 }
 
-const POSTS_FILE = path.join(DATA_DIR, 'posts.json');
-const COMMENTS_FILE = path.join(DATA_DIR, 'comments.json');
-const SETTINGS_FILE = path.join(DATA_DIR, 'settings.json');
-const VIDEOS_FILE = path.join(DATA_DIR, 'videos.json');
+function getPostsFile() { return path.join(getDataDir(), 'posts.json'); }
+function getCommentsFile() { return path.join(getDataDir(), 'comments.json'); }
+function getSettingsFile() { return path.join(getDataDir(), 'settings.json'); }
+function getVideosFile() { return path.join(getDataDir(), 'videos.json'); }
 
 function getFileMtime(filePath: string): number {
     try {
@@ -127,62 +131,70 @@ let videosMtime = 0;
 let videosCache: LocalVideo[] | null = null;
 
 function getCachedPosts(): LocalPost[] {
-    const currentMtime = getFileMtime(POSTS_FILE);
+    const file = getPostsFile();
+    const currentMtime = getFileMtime(file);
     if (postsCache === null || currentMtime !== postsMtime) {
-        postsCache = readJSON<LocalPost[]>(POSTS_FILE, []);
+        postsCache = readJSON<LocalPost[]>(file, []);
         postsMtime = currentMtime;
     }
     return postsCache;
 }
 
 function setCachedPosts(posts: LocalPost[]): void {
-    writeJSON(POSTS_FILE, posts);
-    postsMtime = getFileMtime(POSTS_FILE);
+    const file = getPostsFile();
+    writeJSON(file, posts);
+    postsMtime = getFileMtime(file);
     postsCache = posts;
 }
 
 function getCachedComments(): LocalComment[] {
-    const currentMtime = getFileMtime(COMMENTS_FILE);
+    const file = getCommentsFile();
+    const currentMtime = getFileMtime(file);
     if (commentsCache === null || currentMtime !== commentsMtime) {
-        commentsCache = readJSON<LocalComment[]>(COMMENTS_FILE, []);
+        commentsCache = readJSON<LocalComment[]>(file, []);
         commentsMtime = currentMtime;
     }
     return commentsCache;
 }
 
 function setCachedComments(comments: LocalComment[]): void {
-    writeJSON(COMMENTS_FILE, comments);
-    commentsMtime = getFileMtime(COMMENTS_FILE);
+    const file = getCommentsFile();
+    writeJSON(file, comments);
+    commentsMtime = getFileMtime(file);
     commentsCache = comments;
 }
 
 function getCachedSettings(): SiteSettings {
-    const currentMtime = getFileMtime(SETTINGS_FILE);
+    const file = getSettingsFile();
+    const currentMtime = getFileMtime(file);
     if (settingsCache === null || currentMtime !== settingsMtime) {
-        settingsCache = readJSON<SiteSettings>(SETTINGS_FILE, DEFAULT_SETTINGS);
+        settingsCache = readJSON<SiteSettings>(file, DEFAULT_SETTINGS);
         settingsMtime = currentMtime;
     }
     return settingsCache;
 }
 
 function setCachedSettings(settings: SiteSettings): void {
-    writeJSON(SETTINGS_FILE, settings);
-    settingsMtime = getFileMtime(SETTINGS_FILE);
+    const file = getSettingsFile();
+    writeJSON(file, settings);
+    settingsMtime = getFileMtime(file);
     settingsCache = settings;
 }
 
 function getCachedVideos(): LocalVideo[] {
-    const currentMtime = getFileMtime(VIDEOS_FILE);
+    const file = getVideosFile();
+    const currentMtime = getFileMtime(file);
     if (videosCache === null || currentMtime !== videosMtime) {
-        videosCache = readJSON<LocalVideo[]>(VIDEOS_FILE, []);
+        videosCache = readJSON<LocalVideo[]>(file, []);
         videosMtime = currentMtime;
     }
     return videosCache;
 }
 
 function setCachedVideos(videos: LocalVideo[]): void {
-    writeJSON(VIDEOS_FILE, videos);
-    videosMtime = getFileMtime(VIDEOS_FILE);
+    const file = getVideosFile();
+    writeJSON(file, videos);
+    videosMtime = getFileMtime(file);
     videosCache = videos;
 }
 

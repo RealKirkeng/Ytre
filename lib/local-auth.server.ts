@@ -9,10 +9,11 @@ import path from 'path';
 import bcrypt from 'bcryptjs';
 import { SignJWT, jwtVerify } from 'jose';
 import { cookies } from 'next/headers';
+import { getDataDir } from './data-dir.server';
 
-// ── Storage ──────────────────────────────────────────────────────────────────
-const DATA_DIR = path.join(process.cwd(), 'data');
-const USERS_FILE = path.join(DATA_DIR, 'users.json');
+function getUsersFile() {
+    return path.join(getDataDir(), 'users.json');
+}
 
 // JWT secret — override via JWT_SECRET env var in production
 const JWT_SECRET = new TextEncoder().encode(
@@ -47,26 +48,38 @@ export interface SessionUser {
 
 // ── File helpers ──────────────────────────────────────────────────────────────
 function ensureDataDir() {
-    if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+    const dir = getDataDir();
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 }
 
+let usersMtime = 0;
 let usersCache: LocalUser[] | null = null;
 
 function readUsers(): LocalUser[] {
     ensureDataDir();
-    if (usersCache !== null) return usersCache;
-    if (!fs.existsSync(USERS_FILE)) return [];
+    const file = getUsersFile();
     try {
-        usersCache = JSON.parse(fs.readFileSync(USERS_FILE, 'utf-8'));
+        if (!fs.existsSync(file)) return usersCache || [];
+        const currentMtime = fs.statSync(file).mtimeMs;
+        if (usersCache !== null && currentMtime === usersMtime) return usersCache;
+        usersCache = JSON.parse(fs.readFileSync(file, 'utf-8'));
+        usersMtime = currentMtime;
+        return usersCache || [];
+    } catch {
         return usersCache || [];
     }
-    catch { return []; }
 }
 
 function writeUsers(users: LocalUser[]): void {
     ensureDataDir();
+    const file = getUsersFile();
     usersCache = users;
-    fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2), 'utf-8');
+    try {
+        fs.writeFileSync(file, JSON.stringify(users, null, 2), 'utf-8');
+        usersMtime = fs.statSync(file).mtimeMs;
+    } catch (err) {
+        console.warn(`[local-auth] Warning: Could not write users to ${file}:`, err);
+    }
 }
 
 // ── Seed test account ─────────────────────────────────────────────────────────

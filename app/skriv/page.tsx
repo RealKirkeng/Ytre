@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { PenLine, Eye, ArrowLeft, Loader2, ImagePlus, X, Bold, Italic, Heading2, Quote, ChevronDown, Map, Users, Tag, BookOpen, Link2, Clock, Check, UserPlus, AlignLeft, AlignCenter, AlignRight, Maximize2, ImageIcon } from 'lucide-react';
 import { NorwayMap, GeoFeature, GeoMode } from '@/components/NorwayMap';
 import { ArticleInlineImage } from '@/components/ArticleInlineImage';
+import { compressImageFile } from '@/lib/image-utils';
 import { useAuth } from '@/hooks/useAuth';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -426,15 +427,23 @@ function InlineImageModal({
 
     const activeSrc = filePreview || urlInput.trim();
 
-    const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
-        const reader = new FileReader();
-        reader.onload = ev => {
-            setFilePreview(ev.target?.result as string);
-            setUrlInput('');
-        };
-        reader.readAsDataURL(file);
+        try {
+            const compressed = await compressImageFile(file, 1600, 1600, 0.82);
+            if (compressed) {
+                setFilePreview(compressed);
+                setUrlInput('');
+            }
+        } catch {
+            const reader = new FileReader();
+            reader.onload = ev => {
+                setFilePreview(ev.target?.result as string);
+                setUrlInput('');
+            };
+            reader.readAsDataURL(file);
+        }
     };
 
     const handleInsert = () => {
@@ -821,13 +830,18 @@ export default function SkrivPage() {
         setContent(md);
     };
 
-    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
-        if (file.size > 5 * 1024 * 1024) { showToast('Bildet må være under 5 MB', 'error'); return; }
-        const reader = new FileReader();
-        reader.onload = ev => setImagePreview(ev.target?.result as string);
-        reader.readAsDataURL(file);
+        if (file.size > 20 * 1024 * 1024) { showToast('Bildet må være under 20 MB', 'error'); return; }
+        try {
+            const compressed = await compressImageFile(file, 1600, 1600, 0.82);
+            if (compressed) setImagePreview(compressed);
+        } catch {
+            const reader = new FileReader();
+            reader.onload = ev => setImagePreview(ev.target?.result as string);
+            reader.readAsDataURL(file);
+        }
     };
 
     const insertFormat = useCallback((before: string, after: string, placeholder: string) => {
@@ -940,12 +954,26 @@ export default function SkrivPage() {
                     allowLicensing: allowLicensing,
                 }),
             });
-            const json = await res.json();
-            if (!res.ok) throw new Error(json.error || 'Noe gikk galt');
+
+            let json: any = null;
+            try {
+                const text = await res.text();
+                json = text ? JSON.parse(text) : null;
+            } catch {
+                json = null;
+            }
+
+            if (!res.ok) {
+                if (res.status === 413) {
+                    throw new Error('Innlegget eller bildene er for store (maks ca. 4.5 MB). Vennligst bruk færre eller mindre bilder.');
+                }
+                throw new Error(json?.error || `Feil under publisering (status ${res.status}). Vennligst prøv igjen.`);
+            }
+
             setSubmitted(true);
             window.scrollTo({ top: 0, behavior: 'smooth' });
         } catch (err: any) {
-            showToast(err.message || 'Noe gikk galt', 'error');
+            showToast(err.message || 'Noe gikk galt under publisering', 'error');
         } finally {
             setLoading(false);
         }

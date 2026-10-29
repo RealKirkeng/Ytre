@@ -5,9 +5,11 @@
 
 import fs from 'fs';
 import path from 'path';
+import { getDataDir } from './data-dir.server';
 
-const DATA_DIR = path.join(process.cwd(), 'data');
-const REPORTS_FILE = path.join(DATA_DIR, 'reports.json');
+function getReportsFile() {
+    return path.join(getDataDir(), 'reports.json');
+}
 
 export type ReportStatus = 'pending' | 'investigating' | 'action_taken' | 'dismissed';
 
@@ -36,8 +38,9 @@ let reportsMtime = 0;
 let reportsCache: ContentReport[] | null = null;
 
 function ensureDir() {
-    if (!fs.existsSync(DATA_DIR)) {
-        fs.mkdirSync(DATA_DIR, { recursive: true });
+    const dir = getDataDir();
+    if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
     }
 }
 
@@ -52,9 +55,10 @@ function getFileMtime(filePath: string): number {
 
 function readReports(): ContentReport[] {
     ensureDir();
-    if (!fs.existsSync(REPORTS_FILE)) return [];
+    const file = getReportsFile();
+    if (!fs.existsSync(file)) return [];
     try {
-        const raw = fs.readFileSync(REPORTS_FILE, 'utf-8');
+        const raw = fs.readFileSync(file, 'utf-8');
         return JSON.parse(raw);
     } catch {
         return [];
@@ -63,13 +67,19 @@ function readReports(): ContentReport[] {
 
 function writeReports(data: ContentReport[]): void {
     ensureDir();
-    fs.writeFileSync(REPORTS_FILE, JSON.stringify(data, null, 2), 'utf-8');
-    reportsMtime = getFileMtime(REPORTS_FILE);
+    const file = getReportsFile();
+    try {
+        fs.writeFileSync(file, JSON.stringify(data, null, 2), 'utf-8');
+        reportsMtime = getFileMtime(file);
+    } catch (err) {
+        console.warn(`[reports-store] Could not write to ${file}:`, err);
+    }
     reportsCache = data;
 }
 
 function getCachedReports(): ContentReport[] {
-    const currentMtime = getFileMtime(REPORTS_FILE);
+    const file = getReportsFile();
+    const currentMtime = getFileMtime(file);
     if (!reportsCache || currentMtime !== reportsMtime) {
         reportsCache = readReports();
         reportsMtime = currentMtime;

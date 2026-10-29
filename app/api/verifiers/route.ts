@@ -1,13 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
+import { getDataDir } from '@/lib/data-dir.server';
 
-const DATA_FILE = path.join(process.cwd(), 'data', 'verifier_applications.json');
+function getApplicationsFile() {
+    return path.join(getDataDir(), 'verifier_applications.json');
+}
 
 function getApplications() {
     try {
-        if (!fs.existsSync(DATA_FILE)) return [];
-        const content = fs.readFileSync(DATA_FILE, 'utf-8');
+        const file = getApplicationsFile();
+        if (!fs.existsSync(file)) return [];
+        const content = fs.readFileSync(file, 'utf-8');
         return JSON.parse(content);
     } catch {
         return [];
@@ -16,7 +20,8 @@ function getApplications() {
 
 function saveApplications(apps: any[]) {
     try {
-        fs.writeFileSync(DATA_FILE, JSON.stringify(apps, null, 2), 'utf-8');
+        const file = getApplicationsFile();
+        fs.writeFileSync(file, JSON.stringify(apps, null, 2), 'utf-8');
     } catch (err) {
         console.error('Failed to save verifier application:', err);
     }

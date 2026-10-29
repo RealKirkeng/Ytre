@@ -21,17 +21,23 @@ export async function processBase64Image(imageUrl: string | undefined, prefix: s
         extension = extension.split('+')[0].split(';')[0];
         if (extension === 'jpeg') extension = 'jpg';
 
-        const fileName = `${prefix}-${crypto.randomUUID()}-${Date.now()}.${extension}`;
-        const uploadDir = path.join(process.cwd(), 'public', 'uploads');
+        try {
+            const fileName = `${prefix}-${crypto.randomUUID()}-${Date.now()}.${extension}`;
+            const uploadDir = path.join(process.cwd(), 'public', 'uploads');
 
-        // Ensure target directory exists
-        await fs.promises.mkdir(uploadDir, { recursive: true });
-        
-        // Write file asynchronously
-        const buffer = Buffer.from(base64Data, 'base64');
-        await fs.promises.writeFile(path.join(uploadDir, fileName), buffer);
+            // Ensure target directory exists
+            await fs.promises.mkdir(uploadDir, { recursive: true });
+            
+            // Write file asynchronously
+            const buffer = Buffer.from(base64Data, 'base64');
+            await fs.promises.writeFile(path.join(uploadDir, fileName), buffer);
 
-        return `/uploads/${fileName}`;
+            return `/uploads/${fileName}`;
+        } catch (err) {
+            // In serverless / read-only filesystem (like Vercel), save the compressed data URL directly
+            console.warn('[processBase64Image] Could not write image file to disk, using data URL fallback:', err);
+            return imageUrl;
+        }
     }
     return imageUrl;
 }

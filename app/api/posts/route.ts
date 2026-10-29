@@ -42,45 +42,70 @@ export async function GET(req: NextRequest) {
 
 // POST — submit article (saved as 'pending', awaiting admin approval)
 export async function POST(req: NextRequest) {
-    const token = req.cookies.get('auth-token')?.value;
-    const user = token ? await verifyToken(token) : null;
-    if (!user) return NextResponse.json({ error: 'Du må logge inn for å sende inn.' }, { status: 401 });
+    try {
+        const token = req.cookies.get('auth-token')?.value;
+        const user = token ? await verifyToken(token) : null;
+        if (!user) return NextResponse.json({ error: 'Du må logge inn for å sende inn innlegg.' }, { status: 401 });
 
-    const { title, subtitle, content, category, image_url, regions, audience, angle, readingLevel, sources, imageCaption, photographer, organization, position, orgLevel, coAuthors, allowLicensing } = await req.json();
-    if (!title?.trim()) return NextResponse.json({ error: 'Tittel er påkrevd.' }, { status: 400 });
-    if (!content?.trim()) return NextResponse.json({ error: 'Innhold er påkrevd.' }, { status: 400 });
-    if (!category) return NextResponse.json({ error: 'Kategori er påkrevd.' }, { status: 400 });
-    if (content.length < 50) return NextResponse.json({ error: 'Artikkelen er for kort (min. 50 tegn).' }, { status: 400 });
+        let body: any;
+        try {
+            body = await req.json();
+        } catch {
+            return NextResponse.json({ error: 'Ugyldig data sendt til serveren.' }, { status: 400 });
+        }
 
-    const processedImageUrl = await processBase64Image(image_url, 'post');
-    const processedContent = await processContentImages(content.trim());
+        const { title, subtitle, content, category, image_url, regions, audience, angle, readingLevel, sources, imageCaption, photographer, organization, position, orgLevel, coAuthors, allowLicensing } = body;
+        if (!title?.trim()) return NextResponse.json({ error: 'Tittel er påkrevd.' }, { status: 400 });
+        if (!content?.trim()) return NextResponse.json({ error: 'Innhold er påkrevd.' }, { status: 400 });
+        if (!category) return NextResponse.json({ error: 'Kategori er påkrevd.' }, { status: 400 });
+        if (content.length < 50) return NextResponse.json({ error: 'Artikkelen er for kort (min. 50 tegn).' }, { status: 400 });
 
-    const post = createPost({
-        slug: generateSlug(title),
-        title: title.trim(),
-        subtitle: subtitle?.trim() || undefined,
-        content: processedContent,
-        category,
-        image_url: processedImageUrl || undefined,
-        regions: regions || undefined,
-        audience: audience || undefined,
-        angle: angle || undefined,
-        readingLevel: readingLevel || undefined,
-        sources: sources || undefined,
-        imageCaption: imageCaption || undefined,
-        photographer: photographer || undefined,
-        organization: organization || undefined,
-        position: position || undefined,
-        orgLevel: orgLevel || undefined,
-        coAuthors: Array.isArray(coAuthors) && coAuthors.length > 0 ? coAuthors : undefined,
-        allowLicensing: Boolean(allowLicensing),
-        // Store extra metadata in a future-proof way
-        status: 'pending',     // ← awaiting admin approval
-        authorId: user.id,
-        authorName: user.name,
-    });
+        let processedImageUrl = image_url;
+        try {
+            processedImageUrl = await processBase64Image(image_url, 'post');
+        } catch (err) {
+            console.warn('[POST /api/posts] Could not process cover image file on disk:', err);
+        }
 
-    return NextResponse.json({ slug: post.slug, id: post.id, status: 'pending' }, { status: 201 });
+        let processedContent = content.trim();
+        try {
+            processedContent = await processContentImages(content.trim());
+        } catch (err) {
+            console.warn('[POST /api/posts] Could not process inline images on disk:', err);
+        }
+
+        const post = createPost({
+            slug: generateSlug(title),
+            title: title.trim(),
+            subtitle: subtitle?.trim() || undefined,
+            content: processedContent,
+            category,
+            image_url: processedImageUrl || undefined,
+            regions: regions || undefined,
+            audience: audience || undefined,
+            angle: angle || undefined,
+            readingLevel: readingLevel || undefined,
+            sources: sources || undefined,
+            imageCaption: imageCaption || undefined,
+            photographer: photographer || undefined,
+            organization: organization || undefined,
+            position: position || undefined,
+            orgLevel: orgLevel || undefined,
+            coAuthors: Array.isArray(coAuthors) && coAuthors.length > 0 ? coAuthors : undefined,
+            allowLicensing: Boolean(allowLicensing),
+            status: 'pending',     // ← awaiting admin approval
+            authorId: user.id,
+            authorName: user.name,
+        });
+
+        return NextResponse.json({ slug: post.slug, id: post.id, status: 'pending' }, { status: 201 });
+    } catch (err: any) {
+        console.error('[POST /api/posts fatal error]:', err);
+        return NextResponse.json(
+            { error: err.message || 'En uventet feil oppstod under lagring av artikkelen.' },
+            { status: 500 }
+        );
+    }
 }
 
 // DELETE — admin only
