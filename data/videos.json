@@ -1,0 +1,41 @@
+[
+  {
+    "id": "b0bbb0c1-12ac-4dca-ad5f-d0e1b4cdcc3a",
+    "view_count": 0,
+    "createdAt": "2026-02-28T21:47:13.305Z",
+    "reactions": {},
+    "title": "Ekte test",
+    "description": "Ekte test for ekte fil",
+    "videoUrl": "/uploads/videos/ekte-test-1772315233298.mp4",
+    "status": "published",
+    "authorId": "c2caf46f-900d-49a9-9ef4-065cad3e5b05",
+    "authorName": "Test Bruker",
+    "updatedAt": "2026-02-28T21:47:30.789Z"
+  },
+  {
+    "id": "df3defe5-85c8-475a-8723-d81b9cbe9822",
+    "view_count": 0,
+    "createdAt": "2026-02-28T21:39:09.335Z",
+    "reactions": {},
+    "title": "Sekundær test",
+    "description": "Ja altså vi kjører på med testvideo 2, sverger dette er den siste\n\nHVIS den funker",
+    "videoUrl": "https://youtu.be/nm15osUkegk?si=BEMc0-oUsJlb5Emj",
+    "status": "published",
+    "authorId": "c2caf46f-900d-49a9-9ef4-065cad3e5b05",
+    "authorName": "Test Bruker",
+    "updatedAt": "2026-02-28T21:39:18.079Z"
+  },
+  {
+    "id": "6e7c0d43-dd87-44de-a8cb-f27a68e0c1e2",
+    "view_count": 0,
+    "createdAt": "2026-02-28T21:32:26.838Z",
+    "reactions": {},
+    "title": "Test",
+    "description": "En test for opplasting av video",
+    "videoUrl": "https://youtu.be/ajeVIKFLRsQ?si=MbPo0Ga2A1gPWbmv",
+    "status": "published",
+    "authorId": "c2caf46f-900d-49a9-9ef4-065cad3e5b05",
+    "authorName": "Test Bruker",
+    "updatedAt": "2026-02-28T21:37:39.242Z"
+  }
+]

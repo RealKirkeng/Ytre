@@ -1,0 +1,306 @@
+[
+  {
+    "id": "b7da6efb-2fa9-4a94-9c47-42e3610c0db0",
+    "view_count": 1,
+    "flag_count": 0,
+    "is_featured": false,
+    "createdAt": "2026-03-05T12:49:30.140Z",
+    "reactions": {},
+    "slug": "k-ttlfc",
+    "title": "K",
+    "subtitle": "å nei",
+    "content": "kkæ\nkpijouhb\n\n\n> kæp'm '¨ænlj  jioub iøoækm\noljj\nlkmæ",
+    "category": "school",
+    "status": "published",
+    "authorId": "c2caf46f-900d-49a9-9ef4-065cad3e5b05",
+    "authorName": "Test Bruker",
+    "updatedAt": "2026-03-05T12:49:48.022Z"
+  },
+  {
+    "id": "65f4bfa9-141b-47f9-a37e-d1f893a11da2",
+    "view_count": 1,
+    "flag_count": 0,
+    "is_featured": false,
+    "createdAt": "2026-03-01T16:45:53.147Z",
+    "reactions": {},
+    "slug": "soppel-p7v1f",
+    "title": "Søppel",
+    "content": "En søppeltekstEn søppeltekstEn søppeltekstEn søppeltekstEn søppeltekstEn søppeltekstEn søppeltekstEn søppeltekstEn søppeltekstEn søppeltekstEn søppeltekstEn søppeltekstEn søppeltekstEn søppeltekstEn søppeltekstEn søppeltekstEn søppeltekstEn søppeltekst",
+    "category": "rights",
+    "image_url": "/uploads/post-65f4bfa9-141b-47f9-a37e-d1f893a11da2-1779290446057.png",
+    "status": "published",
+    "authorId": "c2caf46f-900d-49a9-9ef4-065cad3e5b05",
+    "authorName": "Test Bruker",
+    "updatedAt": "2026-03-01T16:45:57.247Z"
+  },
+  {
+    "id": "152b098d-d657-4849-987f-ecc6837df638",
+    "view_count": 0,
+    "flag_count": 0,
+    "is_featured": false,
+    "createdAt": "2026-03-01T16:44:46.637Z",
+    "reactions": {},
+    "slug": "er-tester-virkelig-nodvending-37nk3",
+    "title": "Er tester virkelig nødvending?",
+    "subtitle": "Plot twist, dette er nok engang bare en test for å se hvordan siden ser ut når det kommer flere lengre innlegg.",
+    "content": "Plot twist, dette er nok engang bare en test for å se hvordan siden ser ut når det kommer flere lengre innlegg. Plot twist, dette er nok engang bare en test for å se hvordan siden ser ut når det kommer flere lengre innlegg.\n\nPlot twist, dette er nok engang bare en test for å se hvordan siden ser ut når det kommer flere lengre innlegg.Plot twist, dette er nok engang bare en test for å se hvordan siden ser ut når det kommer flere lengre innlegg.Plot twist, dette er nok engang bare en test for å se hvordan siden ser ut når det kommer flere lengre innlegg.Plot twist, dette er nok engang bare en test for å se hvordan siden ser ut når det kommer flere lengre innlegg.\n\n\nPlot twist, dette er nok engang bare en test for å se hvordan siden ser ut når det kommer flere lengre innlegg.Plot twist, dette er nok engang bare en test for å se hvordan siden ser ut når det kommer flere lengre innlegg.\nPlot twist, dette er nok engang bare en test for å se hvordan siden ser ut når det kommer flere lengre innlegg.\n\n\nPlot twist, dette er nok engang bare en test for å se hvordan siden ser ut når det kommer flere lengre innlegg.Plot twist, dette er nok engang bare en test for å se hvordan siden ser ut når det kommer flere lengre innlegg.",
+    "category": "school",
+    "image_url": "/uploads/post-152b098d-d657-4849-987f-ecc6837df638-1779290446062.png",
+    "regions": [
+      {
+        "level": "fylke",
+        "id": "40",
+        "name": "Telemark"
+      },
+      {
+        "level": "fylke",
+        "id": "42",
+        "name": "Agder"
+      },
+      {
+        "level": "fylke",
+        "id": "33",
+        "name": "Buskerud"
+      },
+      {
+        "level": "kommune",
+        "id": "3417",
+        "name": "Grue"
+      },
+      {
+        "level": "kommune",
+        "id": "3401",
+        "name": "Kongsvinger"
+      }
+    ],
+    "angle": "🟠 Løsningsorientert",
+    "readingLevel": "advanced",
+    "sources": [
+      "https://www.google.com/search?q=er+tester+n%C3%B8dvendig&oq=er+tester+n%C3%B8dvendig&gs_lcrp=EgRlZGdlKgYIABBFGDkyBggAEEUYOdIBCDMyMTRqMGoxqAIAsAIA&sourceid=chrome&ie=UTF-8"
+    ],
+    "organization": "Utdanningsidrektoratet",
+    "position": "Innvalgt",
+    "status": "published",
+    "authorId": "c2caf46f-900d-49a9-9ef4-065cad3e5b05",
+    "authorName": "Test Bruker",
+    "updatedAt": "2026-03-01T16:44:51.218Z"
+  },
+  {
+    "id": "58d40ad4-b0fb-405d-98ee-b006c54374d2",
+    "view_count": 0,
+    "flag_count": 0,
+    "is_featured": false,
+    "createdAt": "2026-02-25T22:52:05.605Z",
+    "slug": "test-40-h9gft",
+    "title": "Test 4.0",
+    "subtitle": "Test",
+    "content": "Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Testm",
+    "category": "environment",
+    "status": "published",
+    "authorId": "c2caf46f-900d-49a9-9ef4-065cad3e5b05",
+    "authorName": "Test Bruker",
+    "updatedAt": "2026-02-27T15:11:21.519Z"
+  },
+  {
+    "id": "56f05207-4e2b-4841-b995-831b6b0233d0",
+    "view_count": 2,
+    "flag_count": 0,
+    "is_featured": false,
+    "createdAt": "2026-02-25T22:29:00.107Z",
+    "slug": "testens-test-60xh2",
+    "title": "Testens test",
+    "subtitle": "Bare en test",
+    "content": "Lenge leve testenes tesbarhet oh yeah.\n\nSom sagt, bare en test",
+    "category": "rights",
+    "status": "published",
+    "authorId": "c2caf46f-900d-49a9-9ef4-065cad3e5b05",
+    "authorName": "Test Bruker",
+    "updatedAt": "2026-02-25T22:29:11.388Z"
+  },
+  {
+    "id": "b67c6189-9f97-4134-9b90-1f5983ef1be2",
+    "view_count": 6,
+    "flag_count": 0,
+    "is_featured": false,
+    "createdAt": "2026-02-25T21:09:47.293Z",
+    "slug": "loreum-ipsum-3u788",
+    "title": "Loreum Ipsum",
+    "content": "Loreum Ipsum iposos da mituko macorlia orla li ba dac alphabeticus",
+    "category": "culture",
+    "organization": "LO Nasjonalt",
+    "position": "Styremedlem",
+    "status": "published",
+    "authorId": "c2caf46f-900d-49a9-9ef4-065cad3e5b05",
+    "authorName": "Test Bruker",
+    "updatedAt": "2026-02-27T15:09:38.339Z",
+    "reactions": {
+      "viktig": [],
+      "veldig_bra": []
+    }
+  },
+  {
+    "id": "8901dbd6-7593-4b0b-8f26-5db8cd880aea",
+    "view_count": 5,
+    "flag_count": 0,
+    "is_featured": false,
+    "createdAt": "2026-02-25T19:57:13.033Z",
+    "slug": "draumen-om-sporet-som-aldri-stoppar-1bk8m",
+    "title": "Draumen om sporet som aldri stoppar",
+    "subtitle": "Draumen om eit dobbeltspor frå Sandnes i nord til Egersund i sør, la oss drøyma om dette tilsaman!",
+    "content": "Eg har ein draum.\n\nNår eg sit langt heimefrå, oppslukt av studiar og bøker, så vandrar tankane ofte tilbake til det flate, opne landskapet. Til himmelen som er så høg, og lyset som treffer myra og havet.\n\nMen i draumen min er det noko meir.\n\nDen dagen eg vender nasen heim for godt, med vitnemålet i handa og framtida i bagasjen, ser eg for meg at noko har endra seg. Eg ser ikkje berre det gamle sporet som har tent oss så lenge. Eg ser to. To blanke striper av stål som strekkjer seg uavbrote gjennom landskapet vårt, side om side.\n\nDraumar er sterke saker. Dei kan flytta fjell, og dei kan byggja jernbane, om me berre torer å drøyma dei høgt nok.\n\nEg drøymer om ein Jærbane som pustar fritt. Ikkje rykk og napp, ikkje venting på kryssande tog, ikkje bussar som står i stampe når signalfeilen lyser. Men ein jamn, roleg flyt. Eit dobbelspor som ber oss framover, like stødig som pulsen i regionen vår.\n\nTenk deg kjensla av å vita at toget alltid går. At du slepp å planleggja livet ditt etter ein rutetabell med hol i. Tenk deg at me sluttar å stanga hovudet i veggen med \"buss for tog\", og heller let toget gli forbi på nabosporet medan meirarbeid blir gjort på det andre.\n\nDet handlar ikkje berre om tid og pengar. Det handlar om respekten for tida vår, for kvardagen og for kvarandre.\n\nEg ser for meg tog som stoppar der folk bur, og tog som susar forbi der det trengst fart. Ein dans av stål og hjul som bind saman by og bygd, frå Egersund i sør til Stavanger i nord.\n\nNår eg ein dag kjem heim, vil eg at me skal ha bygt noko som varer. Noko som seier at me trur på denne staden, at me satsar på oss sjølve.\n\nLa det bli meir enn ein draum. La oss leggja skinnene heilt fram.",
+    "category": "infrastructure",
+    "image_url": "/uploads/post-8901dbd6-7593-4b0b-8f26-5db8cd880aea-1779290446074.png",
+    "regions": [
+      {
+        "level": "fylke",
+        "id": "11",
+        "name": "Rogaland"
+      }
+    ],
+    "audience": [
+      "everyone"
+    ],
+    "angle": "🟢 For",
+    "readingLevel": "medium",
+    "imageCaption": "En illustrasjon av et tog og dobbelspor langs det Jærske landskappet",
+    "photographer": "Generert av kustig intellegens",
+    "status": "published",
+    "authorId": "dbdd3ffd-5fd2-4d19-b4f3-50df06d9e3f1",
+    "authorName": "Andreas",
+    "updatedAt": "2026-02-25T19:58:05.649Z"
+  },
+  {
+    "id": "6138a2ea-920e-40be-bd32-3f13f632993a",
+    "view_count": 5,
+    "flag_count": 0,
+    "is_featured": false,
+    "createdAt": "2026-02-25T17:14:41.940Z",
+    "slug": "buss-eller-ikke-buss-3f8ij",
+    "title": "Buss, eller ikke buss?",
+    "subtitle": "Kollektivtransport er det som gjør at Norge går rundt, eller?",
+    "content": "Dette er en test artikkel om om kollektivtransport trengs eller ikke. Bare for å teste nettsiden.",
+    "category": "infrastructure",
+    "image_url": "/uploads/post-6138a2ea-920e-40be-bd32-3f13f632993a-1779290446079.png",
+    "regions": [
+      {
+        "level": "kommune",
+        "id": "3201",
+        "name": "Bærum"
+      },
+      {
+        "level": "kommune",
+        "id": "1108",
+        "name": "Sandnes"
+      }
+    ],
+    "status": "published",
+    "authorId": "00472323-68f1-4f38-9964-ab556f2955f9",
+    "authorName": "Ola Normann",
+    "updatedAt": "2026-02-27T15:55:07.510Z",
+    "reactions": {
+      "støttes": [],
+      "uenig": [],
+      "viktig": [],
+      "veldig_bra": []
+    }
+  },
+  {
+    "id": "2aabbf20-5fcc-4738-b5c0-fcb725d70107",
+    "view_count": 1,
+    "flag_count": 0,
+    "is_featured": false,
+    "createdAt": "2026-02-25T16:31:20.967Z",
+    "slug": "ja-til-gratis-frokost-pa-vgs-e65h0",
+    "title": "Ja til gratis frokost på VGS",
+    "subtitle": "Vi trenger gratis frokost på VGS frem til timene begynner, dette for å gjør at elever som enten ikke spiser frokost hjemme, eller kommer langreist skal få i seg det viktige måltidet.",
+    "content": "Vi trenger gratis frokost på VGS frem til timene begynner, dette for å gjør at elever som enten ikke spiser frokost hjemme, eller kommer langreist skal få i seg det viktige måltidet.\n\n\n## Hvorfor\nDet er viktig å få det til. Derfor.\n\n> \"Elevene trenger frokost for det gjør at hjernen deres fungerer bedre utover skoledagen\" - helsesykepleier\n\nTrenger vi å si mer?",
+    "category": "school",
+    "regions": [
+      {
+        "level": "fylke",
+        "id": "11",
+        "name": "Rogaland"
+      },
+      {
+        "level": "fylke",
+        "id": "42",
+        "name": "Agder"
+      },
+      {
+        "level": "fylke",
+        "id": "46",
+        "name": "Vestland"
+      }
+    ],
+    "status": "published",
+    "authorId": "00472323-68f1-4f38-9964-ab556f2955f9",
+    "authorName": "Ola Normann",
+    "updatedAt": "2026-02-25T16:32:59.043Z"
+  },
+  {
+    "id": "ee49081d-7830-4262-951f-a73fb882825f",
+    "view_count": 3,
+    "flag_count": 0,
+    "is_featured": false,
+    "createdAt": "2026-02-25T13:38:38.811Z",
+    "slug": "nyversions-test-6bcpb",
+    "title": "Nyversions test",
+    "subtitle": "Dette er en test for artikkeldetaljer",
+    "content": "Når himmelen er blå, og bakken er grønn, så skal vi alle leve i\n\nHarmoni\n**Barndom**\n\n## Himmel\n\n> Grønne fine flotte",
+    "category": "society",
+    "image_url": "/uploads/post-ee49081d-7830-4262-951f-a73fb882825f-1779290446081.jpg",
+    "regions": [
+      {
+        "level": "kommune",
+        "id": "1871",
+        "name": "Andøy"
+      },
+      {
+        "level": "fylke",
+        "id": "34",
+        "name": "Innlandet"
+      }
+    ],
+    "status": "published",
+    "authorId": "c2caf46f-900d-49a9-9ef4-065cad3e5b05",
+    "authorName": "Test Bruker"
+  },
+  {
+    "id": "dd9ec048-4f91-4973-b465-995ba741e204",
+    "view_count": 1,
+    "flag_count": 0,
+    "is_featured": false,
+    "createdAt": "2026-02-25T13:15:56.679Z",
+    "slug": "inn-i-landet-m1xwb",
+    "title": "Inn i landet",
+    "subtitle": "A heck yeah",
+    "content": "Test test, dette er en ekta goe test frå innlandet",
+    "category": "society",
+    "regions": [
+      {
+        "level": "fylke",
+        "id": "34",
+        "name": "Innlandet"
+      }
+    ],
+    "status": "published",
+    "authorId": "c2caf46f-900d-49a9-9ef4-065cad3e5b05",
+    "authorName": "Test Bruker"
+  },
+  {
+    "id": "7a676588-0a07-42a8-80c9-081d94a0d354",
+    "view_count": 0,
+    "flag_count": 0,
+    "is_featured": false,
+    "createdAt": "2026-02-25T12:13:02.701Z",
+    "slug": "dobbelspor-pa-jaerbanen-ddu4f",
+    "title": "Dobbelspor på jærbanen",
+    "subtitle": "Me må ha to spor på haile jærbanen ASAP",
+    "content": "Dette er en test artikkel.\n\nPå vegne av testens testhet.\n\nParagraf100 for life",
+    "category": "society",
+    "image_url": "/uploads/post-7a676588-0a07-42a8-80c9-081d94a0d354-1779290446086.png",
+    "status": "published",
+    "authorId": "c2caf46f-900d-49a9-9ef4-065cad3e5b05",
+    "authorName": "Test Bruker"
+  }
+]

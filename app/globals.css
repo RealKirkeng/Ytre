@@ -1,0 +1,423 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* ── Original Theme (Nordic Light) ── */
+  --bg-primary: #FDFBFA;
+  --bg-sand: #F8F5F0;
+  --bg-sand-dark: #E8E2D9;
+  --text-primary: #1A1612;
+  --text-muted: #6B645C;
+  --text-dim: #9C958E;
+  --card-bg: rgba(255, 255, 255, 0.7);
+  --card-border: rgba(26, 22, 18, 0.08);
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.8);
+  --fjord: #5B89A8;
+  --fjord-dark: #4A6F88;
+  --orb-opacity: 0.55;
+}
+
+/* ── Darkness Theme ── */
+.theme-dark {
+  --bg-primary: #12100E;
+  --bg-sand: #1A1714;
+  --bg-sand-dark: #2A2622;
+  --text-primary: #FDFBFA;
+  --text-muted: #D8D4D0;
+  --text-dim: #A8A4A0;
+  --card-bg: rgba(42, 38, 34, 0.8);
+  --card-border: rgba(255, 255, 255, 0.1);
+  --glass-bg: rgba(26, 22, 18, 0.85);
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --orb-opacity: 0.2;
+}
+
+/* ── Gradient Themes — Shared logic ── */
+.theme-blue,
+.theme-purple,
+.theme-rose,
+.theme-pride {
+  --bg-sand: rgba(255, 255, 255, 0.15);
+  --bg-sand-dark: rgba(255, 255, 255, 0.25);
+  --text-primary: #1A1612;
+  --text-muted: #3D3832;
+  --text-dim: #5C564E;
+  --card-bg: rgba(255, 255, 255, 0.85);
+  --card-border: rgba(0, 0, 0, 0.05);
+  --glass-bg: rgba(255, 255, 255, 0.8);
+  --glass-border: rgba(255, 255, 255, 0.4);
+  --orb-opacity: 0.3;
+}
+
+.theme-blue {
+  --bg-primary: #5B89A8;
+  --gradient-main: linear-gradient(135deg, #5B89A8, #8FA9BB);
+}
+
+.theme-purple {
+  --bg-primary: #A87B8E;
+  --gradient-main: linear-gradient(135deg, #A87B8E, #C99FB1);
+}
+
+.theme-rose {
+  --bg-primary: #E8A598;
+  --gradient-main: linear-gradient(135deg, #E8A598, #F2D1C1);
+}
+
+.theme-pride {
+  --bg-primary: #FDFBFA;
+  --gradient-main: linear-gradient(135deg, #EF4444, #F59E0B, #10B981, #3B82F6, #8B5CF6);
+  --text-primary: #1A1612;
+}
+
+/* ── Animated background orbs ── */
+@keyframes float-a {
+
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  33% {
+    transform: translate(40px, -30px) scale(1.08);
+  }
+
+  66% {
+    transform: translate(-20px, 20px) scale(0.95);
+  }
+}
+
+@keyframes float-b {
+
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  40% {
+    transform: translate(-50px, 30px) scale(1.1);
+  }
+
+  70% {
+    transform: translate(30px, -20px) scale(0.92);
+  }
+}
+
+@keyframes float-c {
+
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  50% {
+    transform: translate(25px, 40px) scale(1.06);
+  }
+}
+
+@keyframes pulse-soft {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.4;
+  }
+}
+
+/* ── Base ── */
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--bg-primary);
+    background-attachment: fixed;
+    color: var(--text-primary);
+    @apply font-sans antialiased;
+    min-height: 100vh;
+    overflow-x: hidden;
+    transition: background-color 0.4s ease, color 0.4s ease;
+  }
+
+  /* Apply gradient if theme active */
+  .theme-blue body,
+  .theme-purple body,
+  .theme-rose body,
+  .theme-pride body {
+    background: var(--gradient-main) fixed !important;
+  }
+}
+
+/* ── Content layers — semantic utility classes ── */
+.text-ink {
+  color: var(--text-primary) !important;
+}
+
+.text-ink-300 {
+  color: var(--text-dim) !important;
+}
+
+.text-ink-400 {
+  color: var(--text-muted) !important;
+}
+
+.text-ink-500 {
+  color: var(--text-muted) !important;
+}
+
+.bg-sand {
+  background-color: var(--bg-sand) !important;
+}
+
+.bg-white {
+  background-color: var(--card-bg) !important;
+}
+
+.border-sand-dark\/40 {
+  border-color: var(--card-border) !important;
+}
+
+/* ── Animated background canvas ── */
+.bg-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  opacity: var(--orb-opacity);
+  transition: opacity 0.5s ease;
+}
+
+.bg-canvas::before,
+.bg-canvas::after,
+.bg-canvas .orb3 {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.55;
+}
+
+.bg-canvas::before {
+  width: 700px;
+  height: 700px;
+  background: radial-gradient(circle, rgba(91, 137, 168, 0.35) 0%, transparent 70%);
+  top: -200px;
+  left: -150px;
+  animation: float-a 18s ease-in-out infinite;
+}
+
+.bg-canvas::after {
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(168, 123, 142, 0.28) 0%, transparent 70%);
+  bottom: -150px;
+  right: -100px;
+  animation: float-b 22s ease-in-out infinite;
+}
+
+.orb3 {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(122, 158, 126, 0.22) 0%, transparent 70%);
+  bottom: 30%;
+  left: 40%;
+  animation: float-c 26s ease-in-out infinite;
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+}
+
+.page-content {
+  position: relative;
+  z-index: 1;
+}
+
+@layer components {
+  .card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
+    @apply rounded-2xl shadow-card overflow-hidden;
+    transition: box-shadow 0.25s ease, transform 0.25s ease, background-color 0.3s ease;
+  }
+
+  .input-nordic {
+    background-color: var(--bg-sand);
+    border: 1px solid var(--bg-sand-dark);
+    @apply rounded-xl px-4 py-3 text-ink placeholder-ink-300 focus:outline-none focus:ring-2 focus:ring-fjord/30 focus:border-fjord/50 transition-all;
+  }
+
+  .btn-primary {
+    @apply bg-fjord text-white rounded-xl px-6 py-3 font-medium hover:bg-fjord-dark active:scale-95 transition-all shadow-sm;
+  }
+
+  /* Reading typography */
+  .reading-body p {
+    color: var(--text-muted);
+    @apply leading-[1.88] mb-5 text-[1.09rem];
+  }
+
+  .reading-body h2 {
+    color: var(--text-primary);
+    @apply font-display text-2xl font-bold mt-10 mb-4;
+  }
+
+  .reading-body h3 {
+    color: var(--text-primary);
+    @apply font-display text-xl font-semibold mt-8 mb-3;
+  }
+
+  /* Category badges */
+  .badge {
+    @apply inline-block px-3 py-1 rounded-full text-xs font-medium;
+  }
+
+  .badge-school {
+    background: #D8EAF3;
+    color: #2D6B8F;
+    border: 1px solid #B8D7EA;
+  }
+
+  .badge-politics {
+    background: #F2DFE3;
+    color: #8F3D4F;
+    border: 1px solid #E4C5CD;
+  }
+
+  .badge-mental_health {
+    background: #D8EDDA;
+    color: #2D7040;
+    border: 1px solid #B8DCC0;
+  }
+
+  .badge-society {
+    background: #F2ECD8;
+    color: #8F6A2D;
+    border: 1px solid #E4D6B0;
+  }
+
+  .badge-environment {
+    background: #D8F2E4;
+    color: #2D8F5A;
+    border: 1px solid #C0E8D0;
+  }
+
+  .badge-technology {
+    background: #E2E4F6;
+    color: #4B529E;
+    border: 1px solid #C9CEEB;
+  }
+
+  .badge-infrastructure {
+    background: #EAE6DB;
+    color: #756854;
+    border: 1px solid #D8D2C3;
+  }
+
+  .badge-culture {
+    background: #F6E2F2;
+    color: #9E4B8A;
+    border: 1px solid #EBC9E5;
+  }
+
+  .badge-economy {
+    background: #F6F3E2;
+    color: #9E8F4B;
+    border: 1px solid #EBE6C9;
+  }
+
+  .badge-rights {
+    background: #F6E2E2;
+    color: #9E4B4B;
+    border: 1px solid #EBC9C9;
+  }
+
+  .animate-pulse-soft {
+    animation: pulse-soft 2s ease-in-out infinite;
+  }
+
+  /* ── Spotlight / Glow card effect ── */
+  .card-spotlight {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card-spotlight::before {
+    content: '';
+    position: absolute;
+    width: 280px;
+    height: 280px;
+    background: radial-gradient(circle, rgba(91, 137, 168, 0.13) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+    transform: translate(var(--card-mouse-x, -9999px), var(--card-mouse-y, -9999px)) translate(-50%, -50%);
+    transition: transform 0.08s linear;
+    z-index: 1;
+  }
+
+  /* ── Dynamic Fonts ── */
+  .font-serif-active,
+  .font-serif-active * {
+    font-family: 'Times New Roman', Times, serif !important;
+  }
+
+  .font-serif-active .font-display {
+    font-family: 'Times New Roman', Times, serif !important;
+  }
+
+  .font-opensans-active,
+  .font-opensans-active * {
+    font-family: var(--font-opensans), sans-serif !important;
+  }
+
+  .font-hyperlegible-active,
+  .font-hyperlegible-active * {
+    font-family: var(--font-atkinson), sans-serif !important;
+  }
+
+  .font-comic-active,
+  .font-comic-active * {
+    font-family: var(--font-comic), cursive !important;
+  }
+}
+
+/* ── Hero ambient particles ── */
+@keyframes particle-float {
+  0% {
+    opacity: 0;
+    transform: translateY(0) scale(0.8);
+  }
+
+  20% {
+    opacity: 0.5;
+  }
+
+  80% {
+    opacity: 0.3;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(-80px) scale(1.2);
+  }
+}
+
+.hero-particle {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.55);
+  animation: particle-float linear infinite;
+  pointer-events: none;
+}

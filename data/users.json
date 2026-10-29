@@ -1,0 +1,13 @@
+[
+  {
+    "id": "c2caf46f-900d-49a9-9ef4-065cad3e5b05",
+    "email": "test@test.no",
+    "name": "Test Bruker",
+    "passwordHash": "$2b$10$hKlI49ySwjiw.vl9DWC3O.hdNnFj7mZpHGIJ0hudKgq5pQXRMKP6q",
+    "createdAt": "2026-02-25T11:24:47.018Z",
+    "isAdmin": true,
+    "font": "default",
+    "theme": "original",
+    "reduceMotion": false
+  }
+]

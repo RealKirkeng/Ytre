@@ -1,0 +1,71 @@
+[
+  {
+    "id": "8c401d7a-f95e-41ba-aacc-d176f25e8763",
+    "createdAt": "2026-02-25T12:14:07.666Z",
+    "postId": "1",
+    "content": "Test kommentar.",
+    "authorId": "c2caf46f-900d-49a9-9ef4-065cad3e5b05",
+    "authorName": "Test Bruker"
+  },
+  {
+    "id": "75a29857-1f3c-4367-8599-333e22e59756",
+    "createdAt": "2026-02-25T12:14:35.146Z",
+    "postId": "1",
+    "content": "Ja! Testmelding",
+    "authorId": "dbdd3ffd-5fd2-4d19-b4f3-50df06d9e3f1",
+    "authorName": "Andreas"
+  },
+  {
+    "id": "cf7d317b-2ca3-4752-8526-83321e1a84b2",
+    "createdAt": "2026-02-25T16:34:52.193Z",
+    "postId": "2aabbf20-5fcc-4738-b5c0-fcb725d70107",
+    "content": "Kjempe bra skrevet!",
+    "authorId": "c2caf46f-900d-49a9-9ef4-065cad3e5b05",
+    "authorName": "Test Bruker"
+  },
+  {
+    "id": "730b00db-6adf-4d11-8781-06696b033f2a",
+    "createdAt": "2026-02-25T19:01:59.544Z",
+    "postId": "6138a2ea-920e-40be-bd32-3f13f632993a",
+    "content": "Hei",
+    "authorId": "c2caf46f-900d-49a9-9ef4-065cad3e5b05",
+    "authorName": "Test Bruker"
+  },
+  {
+    "id": "9d723c2b-bf2c-48aa-acb2-c99f9e3a8910",
+    "createdAt": "2026-02-25T19:38:13.505Z",
+    "postId": "6138a2ea-920e-40be-bd32-3f13f632993a",
+    "content": "Test på en test",
+    "parentId": "730b00db-6adf-4d11-8781-06696b033f2a",
+    "authorId": "c2caf46f-900d-49a9-9ef4-065cad3e5b05",
+    "authorName": "Test Bruker"
+  },
+  {
+    "id": "e2273dd4-4799-49dc-8ed5-8615afef1b55",
+    "createdAt": "2026-02-25T19:38:24.569Z",
+    "postId": "6138a2ea-920e-40be-bd32-3f13f632993a",
+    "content": "test på en test av testen??",
+    "parentId": "9d723c2b-bf2c-48aa-acb2-c99f9e3a8910",
+    "authorId": "c2caf46f-900d-49a9-9ef4-065cad3e5b05",
+    "authorName": "Test Bruker"
+  },
+  {
+    "id": "fb8099d0-4861-48e1-a31d-03b713f03380",
+    "createdAt": "2026-03-05T12:51:19.870Z",
+    "reactions": {},
+    "postId": "b7da6efb-2fa9-4a94-9c47-42e3610c0db0",
+    "content": "test",
+    "authorId": "c2caf46f-900d-49a9-9ef4-065cad3e5b05",
+    "authorName": "Test Bruker"
+  },
+  {
+    "id": "1dc7bf6d-d1c2-4114-88f6-5e7b2c89e05d",
+    "createdAt": "2026-03-05T12:51:27.151Z",
+    "reactions": {},
+    "postId": "b7da6efb-2fa9-4a94-9c47-42e3610c0db0",
+    "content": "hva",
+    "parentId": "fb8099d0-4861-48e1-a31d-03b713f03380",
+    "authorId": "c2caf46f-900d-49a9-9ef4-065cad3e5b05",
+    "authorName": "Test Bruker"
+  }
+]
