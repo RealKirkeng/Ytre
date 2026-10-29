@@ -9,6 +9,11 @@ import crypto from 'crypto';
  */
 export async function processBase64Image(imageUrl: string | undefined, prefix: string = 'image'): Promise<string | undefined> {
     if (!imageUrl) return undefined;
+    // On serverless platforms (Vercel / AWS Lambda), runtime writes to public/ are not served by the static CDN.
+    // Keep the compressed data URL directly so images persist in the database across all containers.
+    if (process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME) {
+        return imageUrl;
+    }
     if (imageUrl.startsWith('data:image/')) {
         const match = imageUrl.match(/^data:(image\/[a-zA-Z0-9+.-]+);base64,(.+)$/);
         if (!match) return imageUrl;

@@ -6,6 +6,7 @@
 import fs from 'fs';
 import path from 'path';
 import { getDataDir } from './data-dir.server';
+import { isRemoteKVConfigured, remoteKVGet, remoteKVSet } from './remote-kv.server';
 
 function getReportsFile() {
     return path.join(getDataDir(), 'reports.json');
@@ -65,6 +66,39 @@ function readReports(): ContentReport[] {
     }
 }
 
+const pendingReportWrites: Promise<any>[] = [];
+
+export async function flushReportsToKV(): Promise<void> {
+    if (pendingReportWrites.length === 0) return;
+    const batch = pendingReportWrites.splice(0, pendingReportWrites.length);
+    await Promise.allSettled(batch);
+}
+
+export async function syncReportsFromKV(): Promise<void> {
+    if (!isRemoteKVConfigured()) return;
+    try {
+        const kvReports = await remoteKVGet<ContentReport[]>('reports');
+        if (kvReports !== null && Array.isArray(kvReports)) {
+            ensureDir();
+            const file = getReportsFile();
+            try {
+                fs.writeFileSync(file, JSON.stringify(kvReports, null, 2), 'utf-8');
+                reportsMtime = getFileMtime(file);
+            } catch {
+                // ignore local fs write errors
+            }
+            reportsCache = kvReports;
+        } else if (kvReports === null) {
+            const local = getCachedReports();
+            if (local.length > 0) {
+                await remoteKVSet('reports', local);
+            }
+        }
+    } catch (err) {
+        console.warn('[reports-store] Failed to sync reports from KV:', err);
+    }
+}
+
 function writeReports(data: ContentReport[]): void {
     ensureDir();
     const file = getReportsFile();
@@ -75,6 +109,12 @@ function writeReports(data: ContentReport[]): void {
         console.warn(`[reports-store] Could not write to ${file}:`, err);
     }
     reportsCache = data;
+    if (isRemoteKVConfigured()) {
+        const p = remoteKVSet('reports', data).catch(err =>
+            console.warn('[reports-store] Failed to save reports to KV:', err)
+        );
+        pendingReportWrites.push(p);
+    }
 }
 
 function getCachedReports(): ContentReport[] {

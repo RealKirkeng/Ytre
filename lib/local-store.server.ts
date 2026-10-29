@@ -5,7 +5,7 @@
 
 import fs from 'fs';
 import path from 'path';
-import { getAllUsers } from './local-auth.server';
+import { getAllUsers, syncUsersFromKV } from './local-auth.server';
 import { getDataDir } from './data-dir.server';
 import { isRemoteKVConfigured, remoteKVGet, remoteKVSet } from './remote-kv.server';
 
@@ -141,17 +141,33 @@ function getCachedPosts(): LocalPost[] {
     return postsCache;
 }
 
+const pendingWrites: Promise<any>[] = [];
+
+function queueRemoteSave<T>(key: string, data: T): void {
+    if (!isRemoteKVConfigured()) return;
+    const p = remoteKVSet(key, data).catch(err =>
+        console.warn(`[local-store] Error saving "${key}" to remote:`, err)
+    );
+    pendingWrites.push(p);
+}
+
+export async function flushStoreToKV(): Promise<void> {
+    if (pendingWrites.length === 0) return;
+    const batch = pendingWrites.splice(0, pendingWrites.length);
+    await Promise.allSettled(batch);
+}
+
 export async function syncPostsFromKV(): Promise<void> {
     if (!isRemoteKVConfigured()) return;
     try {
         const kvPosts = await remoteKVGet<LocalPost[]>('posts');
-        if (kvPosts && Array.isArray(kvPosts) && kvPosts.length > 0) {
+        if (kvPosts !== null && Array.isArray(kvPosts)) {
             const file = getPostsFile();
             writeJSON(file, kvPosts);
             postsCache = kvPosts;
             postsMtime = getFileMtime(file);
-        } else if (kvPosts === null || (Array.isArray(kvPosts) && kvPosts.length === 0)) {
-            // If KV is completely empty, populate it with current local posts
+        } else if (kvPosts === null) {
+            // If KV has no 'posts' entry yet, seed it with current local posts
             const local = getCachedPosts();
             if (local.length > 0) {
                 await remoteKVSet('posts', local);
@@ -162,9 +178,33 @@ export async function syncPostsFromKV(): Promise<void> {
     }
 }
 
+export async function syncCommentsFromKV(): Promise<void> {
+    if (!isRemoteKVConfigured()) return;
+    try {
+        const kvComments = await remoteKVGet<LocalComment[]>('comments');
+        if (kvComments !== null && Array.isArray(kvComments)) {
+            const file = getCommentsFile();
+            writeJSON(file, kvComments);
+            commentsCache = kvComments;
+            commentsMtime = getFileMtime(file);
+        } else if (kvComments === null) {
+            const local = getCachedComments();
+            if (local.length > 0) {
+                await remoteKVSet('comments', local);
+            }
+        }
+    } catch (err) {
+        console.warn('[local-store] Failed to sync comments from KV:', err);
+    }
+}
+
 export async function syncStoreFromKV(): Promise<void> {
     if (!isRemoteKVConfigured()) return;
-    await syncPostsFromKV();
+    await Promise.allSettled([
+        syncPostsFromKV(),
+        syncCommentsFromKV(),
+        syncUsersFromKV(),
+    ]);
 }
 
 function setCachedPosts(posts: LocalPost[]): void {
@@ -172,9 +212,7 @@ function setCachedPosts(posts: LocalPost[]): void {
     writeJSON(file, posts);
     postsMtime = getFileMtime(file);
     postsCache = posts;
-    if (isRemoteKVConfigured()) {
-        remoteKVSet('posts', posts).catch(err => console.warn('[local-store] Error setting posts in KV:', err));
-    }
+    queueRemoteSave('posts', posts);
 }
 
 function getCachedComments(): LocalComment[] {
@@ -192,6 +230,7 @@ function setCachedComments(comments: LocalComment[]): void {
     writeJSON(file, comments);
     commentsMtime = getFileMtime(file);
     commentsCache = comments;
+    queueRemoteSave('comments', comments);
 }
 
 function getCachedSettings(): SiteSettings {
@@ -209,6 +248,7 @@ function setCachedSettings(settings: SiteSettings): void {
     writeJSON(file, settings);
     settingsMtime = getFileMtime(file);
     settingsCache = settings;
+    queueRemoteSave('settings', settings);
 }
 
 function getCachedVideos(): LocalVideo[] {
@@ -226,6 +266,7 @@ function setCachedVideos(videos: LocalVideo[]): void {
     writeJSON(file, videos);
     videosMtime = getFileMtime(file);
     videosCache = videos;
+    queueRemoteSave('videos', videos);
 }
 
 // ── Settings operations ───────────────────────────────────────────────────────

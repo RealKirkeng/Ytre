@@ -92,7 +92,7 @@ export async function syncUsersFromKV(): Promise<void> {
     }
 }
 
-function writeUsers(users: LocalUser[]): void {
+async function writeUsers(users: LocalUser[]): Promise<void> {
     ensureDataDir();
     const file = getUsersFile();
     usersCache = users;
@@ -103,7 +103,7 @@ function writeUsers(users: LocalUser[]): void {
         console.warn(`[local-auth] Warning: Could not write users to ${file}:`, err);
     }
     if (isRemoteKVConfigured()) {
-        remoteKVSet('users', users).catch(err => console.warn('[local-auth] Error setting users in KV:', err));
+        await remoteKVSet('users', users).catch(err => console.warn('[local-auth] Error setting users in KV:', err));
     }
 }
 
@@ -124,7 +124,7 @@ export async function seedTestUser(): Promise<void> {
         createdAt: new Date().toISOString(),
         isAdmin: true,
     });
-    writeUsers(users);
+    await writeUsers(users);
     console.log('[auth] Seeded test@test.no (admin)');
 }
 
@@ -153,11 +153,12 @@ export async function createUser(
         isAdmin: false,
     };
     users.push(user);
-    writeUsers(users);
+    await writeUsers(users);
     return user;
 }
 
 export async function updateUser(userId: string, data: Partial<LocalUser>): Promise<LocalUser> {
+    await syncUsersFromKV();
     const users = readUsers();
     const idx = users.findIndex(u => u.id === userId);
     if (idx === -1) throw new Error('Fant ikke bruker.');
@@ -166,7 +167,7 @@ export async function updateUser(userId: string, data: Partial<LocalUser>): Prom
     const { passwordHash: _, email: __, id: ___, ...updateData } = data;
 
     users[idx] = { ...users[idx], ...updateData };
-    writeUsers(users);
+    await writeUsers(users);
     return users[idx];
 }
 

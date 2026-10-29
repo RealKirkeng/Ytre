@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyToken, getUserById } from '@/lib/local-auth.server';
-import { getPosts, createPost, getPostsByAuthor, updatePost, deletePost, getPostById, getEnrichedPosts, syncStoreFromKV } from '@/lib/local-store.server';
+import { getPosts, createPost, getPostsByAuthor, updatePost, deletePost, getPostById, getEnrichedPosts, syncStoreFromKV, flushStoreToKV } from '@/lib/local-store.server';
 import { processBase64Image, processContentImages } from '@/lib/image-upload.server';
 
 export const runtime = 'nodejs';
@@ -100,6 +100,7 @@ export async function POST(req: NextRequest) {
             authorName: user.name,
         });
 
+        await flushStoreToKV();
         return NextResponse.json({ slug: post.slug, id: post.id, status: 'pending' }, { status: 201 });
     } catch (err: any) {
         console.error('[POST /api/posts fatal error]:', err);
@@ -123,6 +124,7 @@ export async function DELETE(req: NextRequest) {
     try {
         const deleted = deletePost(id);
         if (!deleted) return NextResponse.json({ error: 'Innlegg ikke funnet.' }, { status: 404 });
+        await flushStoreToKV();
         return NextResponse.json({ ok: true });
     } catch {
         return NextResponse.json({ error: 'Feil ved sletting.' }, { status: 500 });
@@ -170,6 +172,7 @@ export async function PATCH(req: NextRequest) {
         const updated = updatePost(id, updates);
         if (!updated) return NextResponse.json({ error: 'Kunne ikke oppdatere.' }, { status: 500 });
         
+        await flushStoreToKV();
         return NextResponse.json(updated);
     } catch {
         return NextResponse.json({ error: 'Feil ved oppdatering.' }, { status: 500 });

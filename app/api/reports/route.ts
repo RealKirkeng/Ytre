@@ -6,8 +6,10 @@ import {
     updateReport,
     deleteReport,
     ReportStatus,
+    syncReportsFromKV,
+    flushReportsToKV,
 } from '@/lib/reports-store.server';
-import { incrementPostFlagCount, updatePost } from '@/lib/local-store.server';
+import { incrementPostFlagCount, updatePost, syncStoreFromKV, flushStoreToKV } from '@/lib/local-store.server';
 
 export const runtime = 'nodejs';
 
@@ -20,6 +22,7 @@ export async function GET(req: NextRequest) {
     }
 
     try {
+        await syncReportsFromKV();
         const reports = getAllReports();
         return NextResponse.json(reports);
     } catch (err: any) {
@@ -30,6 +33,7 @@ export async function GET(req: NextRequest) {
 // ── POST: Public / Auth — Submit a new illegal content report ──────────────────
 export async function POST(req: NextRequest) {
     try {
+        await Promise.allSettled([syncReportsFromKV(), syncStoreFromKV()]);
         const body = await req.json();
         const {
             postId,
@@ -96,6 +100,8 @@ export async function POST(req: NextRequest) {
             console.error('Failed to increment post flag count:', err);
         }
 
+        await Promise.allSettled([flushReportsToKV(), flushStoreToKV()]);
+
         return NextResponse.json({
             success: true,
             reportId: newReport.id,
@@ -118,6 +124,7 @@ export async function PATCH(req: NextRequest) {
     }
 
     try {
+        await Promise.allSettled([syncReportsFromKV(), syncStoreFromKV()]);
         const body = await req.json();
         const { id, status, adminNote, takeDownPost, postId } = body;
 
@@ -146,6 +153,8 @@ export async function PATCH(req: NextRequest) {
             return NextResponse.json({ error: 'Fant ikke saken.' }, { status: 404 });
         }
 
+        await Promise.allSettled([flushReportsToKV(), flushStoreToKV()]);
+
         return NextResponse.json({ success: true, report: updated });
     } catch (err: any) {
         return NextResponse.json({ error: err.message || 'Kunne ikke oppdatere saken.' }, { status: 500 });
@@ -161,6 +170,7 @@ export async function DELETE(req: NextRequest) {
     }
 
     try {
+        await syncReportsFromKV();
         const body = await req.json();
         const { id } = body;
 
@@ -172,6 +182,8 @@ export async function DELETE(req: NextRequest) {
         if (!ok) {
             return NextResponse.json({ error: 'Fant ikke saken eller kunne ikke slette.' }, { status: 404 });
         }
+
+        await flushReportsToKV();
 
         return NextResponse.json({ success: true });
     } catch (err: any) {
